@@ -30,3 +30,7 @@ void MainWindow::on_pushButton_5_clicked()
     msg.setText("Download operation is extra very successfully completed.");
     msg.exec();
 }
+
+void oylesine_fonksiyon()
+{
+}
