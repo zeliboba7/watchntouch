@@ -27,7 +27,7 @@ void MainWindow::on_pushButton_5_clicked()
 {
     g.downloadPresentation(ui->textEditPID->toPlainText(),ui->textEditDestination->toPlainText(), ui->textEditFormat->toPlainText());
     QMessageBox msg;
-    msg.setText("Download operation is super extra very successfully completed.");
+    msg.setText("Download operation is supercalifragilisticexpladocious super extra very successfully completed.");
     msg.exec();
 }
 
