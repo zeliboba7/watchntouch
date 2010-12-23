@@ -60,7 +60,7 @@ MainWindow::MainWindow()
 void MainWindow::open()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
-                               tr("Open File"), QDir::currentPath());
+                               tr("Open File"), QDir::currentPath(),"Supported files (*.png *.jpg *.pdf)");
     if (!fileName.isEmpty())
         scribbleArea->openImage(fileName);
 }

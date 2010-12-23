@@ -42,6 +42,8 @@
 
 #include "scribblearea.h"
 
+#include <poppler/qt4/poppler-qt4.h>
+
 ScribbleArea::ScribbleArea(QWidget *parent)
     : QWidget(parent)
 {
@@ -55,9 +57,20 @@ ScribbleArea::ScribbleArea(QWidget *parent)
 bool ScribbleArea::openImage(const QString &fileName)
 {
     QImage loadedImage;
-    if (!loadedImage.load(fileName))
-        return false;
 
+    if(fileName.endsWith(".pdf")) {
+        Poppler::Document *doc = Poppler::Document::load(fileName);
+        QString pageNo = QInputDialog::getText(this, "Page Number", "Page number to be displayed:");
+        Poppler::Page* pdfPage = doc->page(pageNo.toInt());
+        loadedImage = pdfPage->renderToImage();
+        delete pdfPage;
+        delete doc;
+
+    } else {
+
+        if (!loadedImage.load(fileName))
+            return false;
+    }
     QSize newSize = loadedImage.size().expandedTo(size());
     resizeImage(&loadedImage, newSize);
     image = loadedImage;
