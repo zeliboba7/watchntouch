@@ -133,3 +133,15 @@ void Window::showSelectedText(const QString &text)
     textViewer->setPlainText(text);
     selectedTextAction->setChecked(true);
 }
+
+void Window::upLeftGesture()
+{
+    // QMessageBox::information(this, "Gesture", "UpLeftGesture detected");
+    pageSpinBox->setValue(pageSpinBox->value()-1);
+}
+
+void Window::upRightGesture()
+{
+    // QMessageBox::information(this, "Gesture", "UpRightGesture detected");
+    pageSpinBox->setValue(pageSpinBox->value()+1);
+}

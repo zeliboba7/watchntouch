@@ -63,11 +63,6 @@ public slots:
     void setPage(int page = -1);
     void setScale(qreal scale);
 
-protected:
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-
 signals:
     void pageChanged(int currentPage);
     void textSelected(const QString &text);

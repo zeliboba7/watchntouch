@@ -59,6 +59,9 @@ private slots:
     void searchDocument();
     void showSelectedText(const QString &text);
 
+    void upLeftGesture();
+    void upRightGesture();
+
 private:
     DocumentWidget *documentWidget;
     QString lastPath;

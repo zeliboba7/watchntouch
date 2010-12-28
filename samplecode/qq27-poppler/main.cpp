@@ -39,10 +39,29 @@
 #include <QApplication>
 #include "window.h"
 
+#include "QjtMouseGestureFilter.h"
+#include "QjtMouseGesture.h"
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+    QjtMouseGestureFilter filter;
+    QjtMouseGesture *g;
+    DirectionList dl;
     Window window;
+
+    dl << Up << Left;
+    g = new QjtMouseGesture( dl, &filter );
+    filter.addGesture( g );
+    window.connect( g, SIGNAL(gestured()), SLOT(upLeftGesture()) );
+
+    dl.clear();
+    dl << Up << Right;
+    g = new QjtMouseGesture( dl, &filter );
+    filter.addGesture( g );
+    window.connect( g, SIGNAL(gestured()), SLOT(upRightGesture()) );
+
+    window.installEventFilter( &filter );
     window.show();
     return app.exec();
 }

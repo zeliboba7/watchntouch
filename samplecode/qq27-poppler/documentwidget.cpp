@@ -67,41 +67,7 @@ QMatrix DocumentWidget::matrix() const
                    0, 0);
 }
 
-void DocumentWidget::mousePressEvent(QMouseEvent *event)
-{
-    if (!doc)
-        return;
 
-    dragPosition = event->pos();
-    if (!rubberBand)
-        rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
-    rubberBand->setGeometry(QRect(dragPosition, QSize()));
-    rubberBand->show();
-}
-
-void DocumentWidget::mouseMoveEvent(QMouseEvent *event)
-{
-    if (!doc)
-        return;
-
-    rubberBand->setGeometry(QRect(dragPosition, event->pos()).normalized());
-}
-
-void DocumentWidget::mouseReleaseEvent(QMouseEvent *)
-{
-    if (!doc)
-        return;
-
-    if (!rubberBand->size().isEmpty()) {
-        // Correct for the margin around the image in the label.
-        QRectF rect = QRectF(rubberBand->pos(), rubberBand->size());
-        rect.moveLeft(rect.left() - (width() - pixmap()->width()) / 2.0);
-        rect.moveTop(rect.top() - (height() - pixmap()->height()) / 2.0);
-        selectedText(rect);
-    }
-
-    rubberBand->hide();
-}
 
 qreal DocumentWidget::scale() const
 {
