@@ -1,11 +1,14 @@
 #include <QtGui/QApplication>
 #include "calibrationwindow.h"
+#include "irthread.h"
+
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QApplication a(argc, argv);    
+
     CalibrationWindow w;
-    w.show();
+    w.show();    
 
     return a.exec();
 }

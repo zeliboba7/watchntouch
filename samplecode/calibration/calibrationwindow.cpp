@@ -1,13 +1,22 @@
 #include "calibrationwindow.h"
 #include "ui_calibrationwindow.h"
+#include "irthread.h"
 
 #include <QDebug>
 #include <QPainter>
+#include <QEvent>
+#include <QCoreApplication>
+#include <QDesktopWidget>
+
 
 CalibrationWindow::CalibrationWindow(QWidget *parent) :
     QMainWindow(parent, Qt::FramelessWindowHint),
     ui(new Ui::CalibrationWindow)
-{
+{   
+    thread = new IRThread(this);
+    thread->start();
+
+    // UI
     ui->setupUi(this);
 
     // set calibration point width and height to default
@@ -30,11 +39,12 @@ CalibrationWindow::CalibrationWindow(QWidget *parent) :
     p.setBrush(QBrush(Qt::green));
     p.drawEllipse(0,0,50,50);
     p.end();
-    setCalibrationPointImages(initialPixmap.toImage(), touchedPixmap.toImage());
 
+    setCalibrationPointImages(initialPixmap.toImage(), touchedPixmap.toImage());
 
     showFullScreen();
 }
+
 
 CalibrationWindow::~CalibrationWindow()
 {
@@ -112,10 +122,31 @@ void CalibrationWindow::setCalibrationPointTouchStatus(int touchedCount)
 }
 
 // will be executed when a new calibration point data is received
-void CalibrationWindow::calibrationDataReceived()
+void CalibrationWindow::calibrationDataReceived(int x, int y)
 {
-    if(calibrationPointTouchCount < 4)
+    if(calibrationPointTouchCount < 4) {
+        calibrationPoints[calibrationPointTouchCount].setX(x);
+        calibrationPoints[calibrationPointTouchCount].setY(y);
+        printf("calibrated points: %d %d\n",x,y);
         setCalibrationPointTouchStatus(calibrationPointTouchCount+1);
+        wc.wakeOne();
+    }
+    else {
+        printf("ilk x y: %d %d\n",x,y);
+        QDesktopWidget * desktop = QApplication::desktop();
+        QRect rect = desktop->screenGeometry(-1);
+        int width = rect.width();
+        int height = rect.height();
+        //QCursor::setPos(width,height);
+
+
+        x = ((x - calibrationPoints[3].x()) * width)  / (double)(calibrationPoints[2].x() - calibrationPoints[3].x()) ;
+        y = (((y - calibrationPoints[0].y() )* height) / (double)( calibrationPoints[3].y() - calibrationPoints[0].y())) ;
+
+        QCursor::setPos(x,y);
+        printf("son x y: %d %d\n",x,y);
+
+    }
 }
 
 // perform the calibration operation from start by setting the touch count to zero
@@ -124,13 +155,24 @@ void CalibrationWindow::recalibrate()
     setCalibrationPointTouchStatus(0);
 }
 
+
 // handle resize events for the window - when resized, reposition calibration points
 bool CalibrationWindow::event(QEvent *event)
 {
     if(event->type() == QEvent::Resize)
         repositionItems();
-    else if(event->type() == QEvent::MouseButtonPress)  // TODO remove this! just a placeholder until wiiuse data arrives
-        calibrationDataReceived();
+    else if(event->type() == QEvent::MouseButtonPress) {  // TODO remove this! just a placeholder until wiiuse data arrives
+        ;//calibrationDataReceived(); // TODO gelen wiiuse datasını al mouse ı hareket ettir.
+    }
+    else if(event->type() == QEvent::MouseMove) {
+            printf("bakalım\n");
+    }
     else
         return QMainWindow::event(event);
 }
+
+
+
+
+
+

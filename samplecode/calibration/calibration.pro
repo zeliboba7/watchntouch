@@ -11,8 +11,12 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        calibrationwindow.cpp
+        calibrationwindow.cpp \
+    irthread.cpp
 
-HEADERS  += calibrationwindow.h
+HEADERS  += calibrationwindow.h \
+    irthread.h
 
 FORMS    += calibrationwindow.ui
+
+LIBS += -lwiiuse
