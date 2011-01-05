@@ -5,3 +5,5 @@ SOURCES       = main.cpp \
                 scribblearea.cpp
 
 LIBS    += -lpoppler-qt4
+
+QT      += svg

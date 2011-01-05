@@ -45,6 +45,8 @@
 #include <QImage>
 #include <QPoint>
 #include <QWidget>
+#include <QtSvg/QSvgGenerator>
+#include <QPainter>
 
 class ScribbleArea : public QWidget
 {
@@ -83,6 +85,8 @@ private:
     QColor myPenColor;
     QImage image;
     QPoint lastPoint;
+    QSvgGenerator generator;
+    QPainter svgPainter;
 };
 
 #endif

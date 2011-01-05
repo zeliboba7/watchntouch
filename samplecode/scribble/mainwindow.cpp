@@ -111,6 +111,11 @@ void MainWindow::createActions()
         saveAsActs.append(action);
     }
 
+    QAction *svgAction = new QAction("SVG...", this);
+    svgAction->setData("svg");
+    connect(svgAction, SIGNAL(triggered()), this, SLOT(save()));
+    saveAsActs.append(svgAction);
+
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcuts(QKeySequence::Quit);
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));

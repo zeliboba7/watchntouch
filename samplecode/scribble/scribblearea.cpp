@@ -39,10 +39,10 @@
 ****************************************************************************/
 
 #include <QtGui>
-
+#include <poppler/qt4/poppler-qt4.h>
 #include "scribblearea.h"
 
-#include <poppler/qt4/poppler-qt4.h>
+
 
 ScribbleArea::ScribbleArea(QWidget *parent)
     : QWidget(parent)
@@ -52,6 +52,7 @@ ScribbleArea::ScribbleArea(QWidget *parent)
     scribbling = false;
     myPenWidth = 3;
     myPenColor = Qt::red;
+
 }
 
 bool ScribbleArea::openImage(const QString &fileName)
@@ -73,6 +74,16 @@ bool ScribbleArea::openImage(const QString &fileName)
     }
     QSize newSize = loadedImage.size().expandedTo(size());
     resizeImage(&loadedImage, newSize);
+    generator.setFileName("tmp.svg");
+    generator.setSize(size());
+    generator.setViewBox(QRect(0, 0, size().width(), size().height()));
+
+    if(svgPainter.isActive())
+        svgPainter.end();
+
+    svgPainter.begin(&generator);
+    svgPainter.fillRect(0,0,newSize.width(),newSize.height(),Qt::transparent);
+
     image = loadedImage;
     modified = false;
     update();
@@ -81,14 +92,23 @@ bool ScribbleArea::openImage(const QString &fileName)
 
 bool ScribbleArea::saveImage(const QString &fileName, const char *fileFormat)
 {
-    QImage visibleImage = image;
-    resizeImage(&visibleImage, size());
+    svgPainter.end();
 
-    if (visibleImage.save(fileName, fileFormat)) {
-        modified = false;
-        return true;
-    } else {
-        return false;
+    if(strcmp(fileFormat, "svg") != 0)
+    {
+        QImage visibleImage = image;
+        resizeImage(&visibleImage, size());
+
+        if (visibleImage.save(fileName, fileFormat)) {
+            modified = false;
+            return true;
+        } else {
+            return false;
+        }
+    }
+    else
+    {
+        QFile::copy("tmp.svg",fileName);
     }
 }
 
@@ -105,6 +125,7 @@ void ScribbleArea::setPenWidth(int newWidth)
 void ScribbleArea::clearImage()
 {
     image.fill(qRgb(255, 255, 255));
+    svgPainter.fillRect(0,0,size().width(),size().height(),Qt::transparent);
     modified = true;
     update();
 }
@@ -155,6 +176,11 @@ void ScribbleArea::drawLineTo(const QPoint &endPoint)
     painter.setPen(QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap,
                         Qt::RoundJoin));
     painter.drawLine(lastPoint, endPoint);
+
+    svgPainter.setPen(QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap,
+                        Qt::RoundJoin));
+    svgPainter.drawLine(lastPoint, endPoint);
+
     modified = true;
 
     int rad = (myPenWidth / 2) + 2;
