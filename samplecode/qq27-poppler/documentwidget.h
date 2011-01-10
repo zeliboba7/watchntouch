@@ -43,6 +43,8 @@
 #include <QRectF>
 #include <poppler-qt4.h>
 
+#include <QContiguousCache>
+
 class QRubberBand;
 
 class DocumentWidget : public QLabel
@@ -55,6 +57,7 @@ public:
     Poppler::Document *document();
     QMatrix matrix() const;
     qreal scale() const;
+    QImage getPageImage(int pageNumber);
 
 public slots:
     QRectF searchBackwards(const QString &text);
@@ -66,6 +69,7 @@ public slots:
 signals:
     void pageChanged(int currentPage);
     void textSelected(const QString &text);
+    void documentChanged(Poppler::Document *loadedDocument);
 
 private:
     void selectedText(const QRectF &rect);
@@ -77,6 +81,7 @@ private:
     QRubberBand *rubberBand;
     QRectF searchLocation;
     qreal scaleFactor;
+    QContiguousCache<QImage> pageImages;
 };
 
 #endif

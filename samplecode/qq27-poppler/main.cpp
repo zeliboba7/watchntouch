@@ -45,7 +45,7 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QjtMouseGestureFilter filter;
+    QjtMouseGestureFilter filter(Qt::LeftButton, 0);
     QjtMouseGesture *g;
     DirectionList dl;
     Window window;

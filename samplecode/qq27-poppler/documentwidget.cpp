@@ -40,6 +40,8 @@
 #include <poppler-qt4.h>
 #include "documentwidget.h"
 
+#include <QDebug>
+
 DocumentWidget::DocumentWidget(QWidget *parent)
     : QLabel(parent)
 {
@@ -48,6 +50,7 @@ DocumentWidget::DocumentWidget(QWidget *parent)
     rubberBand = 0;
     scaleFactor = 1.0;
     setAlignment(Qt::AlignCenter);
+    pageImages.setCapacity(3);
 }
 
 DocumentWidget::~DocumentWidget()
@@ -81,9 +84,10 @@ void DocumentWidget::showPage(int page)
         emit pageChanged(page);
     }
 
-    QImage image = doc->page(currentPage)
-                      ->renderToImage(scaleFactor * physicalDpiX(), scaleFactor * physicalDpiY());
-
+    QTime t;
+    t.start();
+    QImage image = getPageImage(currentPage);
+    qWarning() << "elapsed during render: " << t.elapsed();
     if (!searchLocation.isEmpty()) {
         QRect highlightRect = matrix().mapRect(searchLocation).toRect();
         highlightRect.adjust(-2, -2, 2, 2);
@@ -95,7 +99,9 @@ void DocumentWidget::showPage(int page)
         painter.end();
     }
 
+    t.restart();
     setPixmap(QPixmap::fromImage(image));
+    qWarning() << "elapsed during setpixmap: " << t.elapsed();
 }
 
 QRectF DocumentWidget::searchBackwards(const QString &text)
@@ -229,6 +235,7 @@ bool DocumentWidget::setDocument(const QString &filePath)
     doc = Poppler::Document::load(filePath);
     if (doc) {
         delete oldDocument;
+        emit documentChanged(doc);
         doc->setRenderHint(Poppler::Document::Antialiasing);
         doc->setRenderHint(Poppler::Document::TextAntialiasing);
         searchLocation = QRectF();
@@ -252,4 +259,29 @@ void DocumentWidget::setScale(qreal scale)
         scaleFactor = scale;
         showPage();
     }
+}
+
+QImage DocumentWidget::getPageImage(int pageNumber)
+{
+    // TODO for the given page number:
+    // - retrieve the image if it exists in cache
+    // insert it and the two surrounding page images if any of them don't
+
+    if(pageNumber < 0 || pageNumber >= doc->numPages()) {
+        // error, invalid page number
+        // return a blank QImage
+        return QImage();
+    }
+
+    if(pageNumber < doc->numPages() - 1) {
+        while(pageNumber + 1 > pageImages.lastIndex())
+            pageImages.append(doc->page(pageImages.lastIndex()+1)->renderToImage(scaleFactor * physicalDpiX(), scaleFactor * physicalDpiY()));
+
+    }
+    if(pageNumber > 0) {
+        while(pageNumber - 1 < pageImages.firstIndex())
+            pageImages.prepend(doc->page(pageImages.firstIndex()-1)->renderToImage(scaleFactor * physicalDpiX(), scaleFactor * physicalDpiY()));
+    }
+
+    return pageImages.at(pageNumber);
 }
