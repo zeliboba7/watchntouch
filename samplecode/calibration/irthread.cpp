@@ -5,15 +5,11 @@
 #include <qevent.h>
 #include <cmath>
 
+// TODO this class should be renamed to InputReceiver
 
 
-
-IRThread::IRThread(CalibrationWindow * w) : QThread(w)
+IRThread::IRThread()
 {
-
-    prevX = 0;
-    prevY = 0;
-    cw = w;
     // wiiuse setup
     /*
     *	Initialize an array of wiimote objects.
@@ -34,6 +30,9 @@ IRThread::IRThread(CalibrationWindow * w) : QThread(w)
     *
     *	This will return the number of actual wiimotes that are in discovery mode.
     */
+
+    // TODO bunu loop içinde tekrarlayalım, ta ki wiimote bulunana kadar, ama uygun arabirimi de olsun
+    // (press and hold 1 and 2 on the wiimote
 
     found = wiiuse_find(wiimotes, MAX_WIIMOTES, 5);
     if (!found) {
@@ -75,7 +74,7 @@ IRThread::IRThread(CalibrationWindow * w) : QThread(w)
     wiiuse_rumble(wiimotes[0], 0);
     wiiuse_set_ir(wiimotes[0], 1);
 
-    QObject::connect(this,SIGNAL(IRReleased(int,int)),cw,SLOT(calibrationDataReceived(int,int)));
+
 
 }
 
@@ -83,16 +82,15 @@ IRThread::~IRThread()
     {
     }
 
+// TODO aslında şu anda tek tür event gönderimi yapıyoruz, sadece IR point görünüyorken.
+// onun yerine şu yaklaşımı izlesek faydalı olacak aslında:
+// - daha önce görünmeyen bir yerde (prevX ve prevY ye bakarak anlaşılır) IR point çıktıysa TouchBegin
+// - daha önce görünen bi yerin yakınlarında tekrar IR point oluştuysa TouchMove
+// - daha önce görünen bi yerde artık IR point görünmüyorsa TouchEnd
+// bunu EventGenerator içinde halletmek mantıklı.
 
 void IRThread::run()
 {
-    // TODO: there you can run some part of your code in
-    // different thread that rest of the application
-
-    // You can create needed classes here or also in IRThread construction.
-
-    // Thread enters the event loop and waits until exit() is called
-
     while(1) {
         if (wiiuse_poll(wiimotes, MAX_WIIMOTES)) {
             if(wiimotes[0]->event == WIIUSE_EVENT) {
@@ -102,28 +100,9 @@ void IRThread::run()
                     for (; i < 4; ++i) {
                         /* check if the source is visible */
                         if (wiimotes[0]->ir.dot[i].visible) {
-                            //printf("IR source %i: (%u, %u)\n", i, wiimotes[0]->ir.dot[i].x, wiimotes[0]->ir.dot[i].y);
-                            if(cw->calibrationPointTouchCount < 4) {
-                                int x = wiimotes[0]->ir.dot[i].x;
-                                int y = wiimotes[0]->ir.dot[i].y;
-                                if(abs((double)prevX - x) > 200 || abs((double)prevY - y) > 200) {
-                                    emit IRReleased(x, y);
-                                    printf("calibrated points 1 : %d %d %d %d %d\n",x,y, prevX, prevY,abs((double)prevX - x));
-                                    cw->wc.wait(&(cw->mutex),2000);
-                                    prevX = x;
-                                    prevY = y;
-                                }
-                                //else {
-                                  //  prevX = wiimotes[0]->ir.dot[i].x;
-                                  //  prevY = wiimotes[0]->ir.dot[i].y;
-                                //}
-                            }
-                            else
-                                emit IRReleased(wiimotes[0]->ir.dot[i].x, wiimotes[0]->ir.dot[i].y);
-
+                                emit IRInputReceived(wiimotes[0]->ir.dot[i].x, wiimotes[0]->ir.dot[i].y, i);
                         }
                     }
-                    printf("polling...\n");
                 }
             }
         }

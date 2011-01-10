@@ -5,10 +5,16 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);    
+    QApplication a(argc, argv);
 
+    IRThread thread;
     CalibrationWindow w;
-    w.show();    
+
+    thread.start();
+
+    QObject::connect(&thread,SIGNAL(IRInputReceived(int,int,int)),&w,SLOT(inputReceived(int,int,int)));
+
+    w.show();
 
     return a.exec();
 }

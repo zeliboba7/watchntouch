@@ -15,14 +15,7 @@
 #endif
 
 #include "wiiuse.h"
-
-/*
-
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-
- */
+#include "inputcalibration.h"
 
 #define HEIGHT_FIX  20  // TODO set this according to platform
 #define MAX_WIIMOTES    1
@@ -43,7 +36,6 @@ public:
     void setCalibrationPointImages(QImage newImageInitial, QImage newImageTouched);
     void recalibrate();
 
-    QThread * thread;
     QWaitCondition wc;
     QMutex mutex;
     int calibrationPointTouchCount;
@@ -52,6 +44,7 @@ private:
     Ui::CalibrationWindow *ui;
     QPixmap calibrationPointImageInitial;
     QPixmap calibrationPointImageTouched;
+    InputCalibration mapper;
     int calibrationPointWidth, calibrationPointHeight;    
 
     void repositionItems();
@@ -60,10 +53,10 @@ private:
 
 protected:
     bool event(QEvent *event);
-    QPoint calibrationPoints[4];
 
 public slots:
-    void calibrationDataReceived(int x,int y);
+    void inputReceived(int x,int y,int i);
+    void calibrationPointReceived(QPoint p);
 
 
 };

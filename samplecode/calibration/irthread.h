@@ -1,32 +1,14 @@
 #ifndef IRTHREAD_H
 #define IRTHREAD_H
 
-#endif // IRTHREAD_H
-
-
-#include "calibrationwindow.h"
-#include <QObject>
 #include <QThread>
 #include <QCoreApplication>
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifndef WIN32
-        #include <unistd.h>
-#endif
-
 #include "wiiuse.h"
 
-
-
-/*
-
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-
- */
 
 #define HEIGHT_FIX  20  // TODO set this according to platform
 #define MAX_WIIMOTES    1
@@ -37,20 +19,14 @@ class IRThread : public QThread
     Q_OBJECT
 
     public:
-        IRThread(CalibrationWindow * w);
+        IRThread();
         virtual ~IRThread();
 
-
-    public: // From QThread
-        void run();
-
     public:
-        CalibrationWindow * cw;
-        int prevX;
-        int prevY;
+        void run(); // From QThread
 
 signals:
-        void IRReleased(int x,int y);
+        void IRInputReceived(int x,int y,int i);
 
     private:
         wiimote** wiimotes;
@@ -59,3 +35,5 @@ signals:
 
 
 };
+
+#endif // IRTHREAD_H
