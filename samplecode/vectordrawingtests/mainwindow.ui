@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>666</width>
+    <height>414</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Watch and Touch Vector Drawing Tests</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="BaseDrawingWidget" name="graphicsView"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>666</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionSaveSVG"/>
+   <addaction name="actionLoadSVG"/>
+   <addaction name="actionUndo"/>
+   <addaction name="actionRedo"/>
+   <addaction name="actionRedPen"/>
+   <addaction name="actionBlackPen"/>
+   <addaction name="actionBluePen"/>
+   <addaction name="actionPenWidthInc"/>
+   <addaction name="actionPenWidthDec"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionSaveSVG">
+   <property name="text">
+    <string>SaveSVG</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionLoadSVG">
+   <property name="text">
+    <string>LoadSVG</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Z</string>
+   </property>
+  </action>
+  <action name="actionRedPen">
+   <property name="text">
+    <string>RedPen</string>
+   </property>
+  </action>
+  <action name="actionBlackPen">
+   <property name="text">
+    <string>BlackPen</string>
+   </property>
+  </action>
+  <action name="actionBluePen">
+   <property name="text">
+    <string>BluePen</string>
+   </property>
+  </action>
+  <action name="actionPenWidthInc">
+   <property name="text">
+    <string>PenWidth++</string>
+   </property>
+  </action>
+  <action name="actionPenWidthDec">
+   <property name="text">
+    <string>PenWidth--</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>BaseDrawingWidget</class>
+   <extends>QGraphicsView</extends>
+   <header>basedrawingwidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
