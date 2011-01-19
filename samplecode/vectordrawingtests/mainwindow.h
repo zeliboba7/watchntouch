@@ -19,6 +19,10 @@ private:
     Ui::MainWindow *ui;
 
 private slots:
+    void on_actionEllipse_triggered();
+    void on_actionStraightLine_triggered();
+    void on_actionRectangle_triggered();
+    void on_actionFreehand_triggered();
     void on_actionPenWidthDec_triggered();
     void on_actionPenWidthInc_triggered();
     void on_actionBluePen_triggered();

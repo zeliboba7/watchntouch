@@ -69,3 +69,23 @@ void MainWindow::on_actionPenWidthDec_triggered()
     current.setWidth(current.width()-1);
     ui->graphicsView->setDrawingPen(current);
 }
+
+void MainWindow::on_actionFreehand_triggered()
+{
+    ui->graphicsView->setDrawingMode(DRAWINGMODE_FREEHAND);
+}
+
+void MainWindow::on_actionRectangle_triggered()
+{
+    ui->graphicsView->setDrawingMode(DRAWINGMODE_RECTANGLE);
+}
+
+void MainWindow::on_actionStraightLine_triggered()
+{
+    ui->graphicsView->setDrawingMode(DRAWINGMODE_STRAIGHTLINE);
+}
+
+void MainWindow::on_actionEllipse_triggered()
+{
+    ui->graphicsView->setDrawingMode(DRAWINGMODE_ELLIPSE);
+}

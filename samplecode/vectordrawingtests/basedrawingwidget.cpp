@@ -78,29 +78,110 @@ DrawingMode BaseDrawingWidget::getDrawingMode()
 
 void BaseDrawingWidget::drawingStart(QPointF startPoint)
 {
+    handleDrawingState(DRAWINGSTATE_START, startPoint);
     mouseDownPoint = mousePrevPoint = startPoint;
 }
 
 void BaseDrawingWidget::drawingUpdate(QPointF updatePoint)
 {
-    drawLineAction(mousePrevPoint, updatePoint);
+    handleDrawingState(DRAWINGSTATE_UPDATE, updatePoint);
     mousePrevPoint = updatePoint;
 }
 
 void BaseDrawingWidget::drawingEnd(QPointF endPoint)
 {
-    drawLineAction(mousePrevPoint, endPoint);
+    handleDrawingState(DRAWINGSTATE_END, endPoint);
     getDrawingData()->registerAction();
     mousePrevPoint = mouseUpPoint = endPoint;
 }
 
-
 void BaseDrawingWidget::resizeEvent(QResizeEvent * event)
 {
-    // TODO fix scene size problem - we still have scrollbars appearing
+    // TODO this size-50 is a bad workaround, make it better
     if(scene() != NULL) {
         scene()->setSceneRect(0,0,width() - 50,height() - 50);
     }
 
     QGraphicsView::resizeEvent(event);
+}
+
+void BaseDrawingWidget::handleDrawingState(DrawingState state, QPointF lastPoint)
+{
+    // handle drawing start/update/end events for the current drawing mode
+
+    switch(drawingMode) {
+        case DRAWINGMODE_FREEHAND:
+            if(state == DRAWINGSTATE_START)
+                // TODO maybe put a dot?
+                ;
+
+            else if(state == DRAWINGSTATE_UPDATE) {
+                QGraphicsLineItem *newItem = new QGraphicsLineItem(QLineF(mousePrevPoint, lastPoint));
+                newItem->setPen(drawingPen);
+                getDrawingData()->addItem(newItem);
+            }
+
+            else {
+                QGraphicsLineItem *newItem = new QGraphicsLineItem(QLineF(mousePrevPoint, lastPoint));
+                newItem->setPen(drawingPen);
+                getDrawingData()->addItem(newItem);
+             }
+
+
+        break;
+
+        case DRAWINGMODE_RECTANGLE:
+        if(state == DRAWINGSTATE_START) {
+                QGraphicsRectItem * newRect = new QGraphicsRectItem(lastPoint.x(), lastPoint.y(),0,0);
+                currentItem = (QGraphicsItem *) newRect;
+                newRect->setPen(drawingPen);
+                newRect->setBrush(drawingBrush);
+                drawingData->addItem(currentItem);
+            }
+
+            else if(state == DRAWINGSTATE_UPDATE)
+                ((QGraphicsRectItem*)currentItem)->setRect(QRectF(mouseDownPoint,lastPoint).normalized());
+
+            else
+                ((QGraphicsRectItem*)currentItem)->setRect(QRectF(mouseDownPoint,lastPoint).normalized());
+        break;
+
+        case DRAWINGMODE_STRAIGHTLINE:
+        if(state == DRAWINGSTATE_START) {
+            QGraphicsLineItem * newLine = new QGraphicsLineItem(QLineF(lastPoint, lastPoint));
+            currentItem = (QGraphicsItem*) newLine;
+            newLine->setPen(drawingPen);
+            getDrawingData()->addItem(newLine);
+        }
+
+        else if(state == DRAWINGSTATE_UPDATE) {
+            ((QGraphicsLineItem*)currentItem)->setLine(QLineF(mouseDownPoint, lastPoint));
+        }
+
+        else {
+            ((QGraphicsLineItem*)currentItem)->setLine(QLineF(mouseDownPoint, lastPoint));
+         }
+        break;
+
+        case DRAWINGMODE_ELLIPSE:
+            if(state == DRAWINGSTATE_START) {
+                    QGraphicsEllipseItem * newEllipse = new QGraphicsEllipseItem(lastPoint.x(), lastPoint.y(),0,0);
+                    currentItem = (QGraphicsItem *) newEllipse;
+                    newEllipse->setPen(drawingPen);
+                    newEllipse->setBrush(drawingBrush);
+                    drawingData->addItem(currentItem);
+                }
+
+                else if(state == DRAWINGSTATE_UPDATE)
+                    ((QGraphicsEllipseItem*)currentItem)->setRect(QRectF(mouseDownPoint,lastPoint).normalized());
+
+                else
+                    ((QGraphicsEllipseItem*)currentItem)->setRect(QRectF(mouseDownPoint,lastPoint).normalized());
+        break;
+
+        case DRAWINGMODE_ERASER:
+        case DRAWINGMODE_ARROW:
+            // TODO not yet implemented - implement these as well
+        break;
+    }
 }

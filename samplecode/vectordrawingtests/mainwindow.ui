@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>666</width>
-    <height>414</height>
+    <width>797</width>
+    <height>480</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,10 +25,20 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>666</width>
+     <width>797</width>
      <height>23</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuDrawing_Tools">
+    <property name="title">
+     <string>Drawing Tools</string>
+    </property>
+    <addaction name="actionFreehand"/>
+    <addaction name="actionRectangle"/>
+    <addaction name="actionStraightLine"/>
+    <addaction name="actionEllipse"/>
+   </widget>
+   <addaction name="menuDrawing_Tools"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -103,6 +113,26 @@
   <action name="actionPenWidthDec">
    <property name="text">
     <string>PenWidth--</string>
+   </property>
+  </action>
+  <action name="actionFreehand">
+   <property name="text">
+    <string>Freehand</string>
+   </property>
+  </action>
+  <action name="actionRectangle">
+   <property name="text">
+    <string>Rectangle</string>
+   </property>
+  </action>
+  <action name="actionStraightLine">
+   <property name="text">
+    <string>Straight Line</string>
+   </property>
+  </action>
+  <action name="actionEllipse">
+   <property name="text">
+    <string>Ellipse</string>
    </property>
   </action>
  </widget>

@@ -7,7 +7,7 @@
 
 // define the default tools for drawing
 #define DEFAULT_DRAWING_PEN     QPen(Qt::black)
-#define DEFAULT_DRAWING_BRUSH   QBrush(Qt::black, Qt::SolidPattern)
+#define DEFAULT_DRAWING_BRUSH   QBrush(Qt::transparent, Qt::SolidPattern)
 
 typedef enum _DrawingMode {
     DRAWINGMODE_FREEHAND,
@@ -17,6 +17,12 @@ typedef enum _DrawingMode {
     DRAWINGMODE_RECTANGLE,
     DRAWINGMODE_ELLIPSE
 } DrawingMode;
+
+typedef enum _DrawingState {
+    DRAWINGSTATE_START,
+    DRAWINGSTATE_UPDATE,
+    DRAWINGSTATE_END
+} DrawingState;
 
 class BaseDrawingWidget : public QGraphicsView
 {
@@ -43,12 +49,14 @@ private:
     QPen drawingPen;
     QBrush drawingBrush;
     DrawingMode drawingMode;
+    QGraphicsItem * currentItem;
 
 
     void drawLineAction(QPointF from, QPointF to);
     void drawingStart(QPointF startPoint);
     void drawingUpdate(QPointF updatePoint);
     void drawingEnd(QPointF endPoint);
+    void handleDrawingState(DrawingState state, QPointF lastPoint);
 
 signals:
 
