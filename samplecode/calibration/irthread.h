@@ -3,6 +3,7 @@
 
 #include <QThread>
 #include <QCoreApplication>
+#include <QPoint>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,11 +28,15 @@ class IRThread : public QThread
 
 signals:
         void IRInputReceived(int x,int y,int i);
+        void mouseReleased();
 
     private:
         wiimote** wiimotes;
         int found;
         int connected;
+        QPoint current;
+        QPoint previous;
+        int counter;
 
 
 };

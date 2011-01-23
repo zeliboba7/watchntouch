@@ -153,6 +153,7 @@ bool QjtMouseGestureFilter::eventFilter( QObject *obj, QEvent *event )
     return QObject::eventFilter( obj, event );
 }
 
+
 bool QjtMouseGestureFilter::mouseButtonPressEvent( QObject *obj, QMouseEvent *event )
 {
     if( event->button() == d->gestureButton )

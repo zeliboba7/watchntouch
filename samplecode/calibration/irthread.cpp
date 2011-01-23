@@ -1,10 +1,10 @@
-#include "irthread.h"
-
 #include <QDebug>
 #include <QPainter>
 #include <qevent.h>
 #include <cmath>
 
+#include "irthread.h"
+#include "calibrationwindow.h"
 // TODO this class should be renamed to InputReceiver
 
 
@@ -74,6 +74,9 @@ IRThread::IRThread()
     wiiuse_rumble(wiimotes[0], 0);
     wiiuse_set_ir(wiimotes[0], 1);
 
+    previous.setX(0);
+    previous.setY(0);
+    counter = 0;
 
 
 }
@@ -100,7 +103,16 @@ void IRThread::run()
                     for (; i < 4; ++i) {
                         /* check if the source is visible */
                         if (wiimotes[0]->ir.dot[i].visible) {
+                                current.setX(wiimotes[0]->ir.dot[i].x);
+                                current.setY(wiimotes[0]->ir.dot[i].y);
+                                if(previous != QPoint(0,0) && current == previous)
+                                    counter++;
+                                if(counter >= 100) {
+                                    emit mouseReleased();
+                                    counter = 0;
+                                }
                                 emit IRInputReceived(wiimotes[0]->ir.dot[i].x, wiimotes[0]->ir.dot[i].y, i);
+                                previous = current;
                         }
                     }
                 }

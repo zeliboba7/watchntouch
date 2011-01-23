@@ -16,7 +16,11 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="BaseDrawingWidget" name="graphicsView"/>
+     <widget class="BaseDrawingWidget" name="graphicsView">
+      <property name="mouseTracking">
+       <bool>false</bool>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -26,7 +30,7 @@
      <x>0</x>
      <y>0</y>
      <width>797</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDrawing_Tools">

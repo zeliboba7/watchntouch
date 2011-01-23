@@ -50,18 +50,20 @@ int main(int argc, char *argv[])
     DirectionList dl;
     Window window;
 
-    dl << Up << Left;
+    dl << Left;
     g = new QjtMouseGesture( dl, &filter );
     filter.addGesture( g );
     window.connect( g, SIGNAL(gestured()), SLOT(upLeftGesture()) );
 
     dl.clear();
-    dl << Up << Right;
+    dl << Right;
     g = new QjtMouseGesture( dl, &filter );
     filter.addGesture( g );
     window.connect( g, SIGNAL(gestured()), SLOT(upRightGesture()) );
 
     window.installEventFilter( &filter );
+
+
     window.show();
     return app.exec();
 }

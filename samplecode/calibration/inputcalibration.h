@@ -12,9 +12,11 @@
 #include <QObject>
 #include <QPoint>
 
+
 #define NUM_CALIBRATION_POINTS      4
 #define NUM_SAMPLES_PER_POINT       1   // WARNING if this is >1 the threshold thing must be removed
 #define CALIBRATION_POINT_THRESHOLD 400 // minimum Manhattan spacing for calibration points
+
 
 class InputCalibration : public QObject
 {
@@ -40,6 +42,8 @@ private:
     bool isCalibrated;
     int sampleCounterForCurrentPoint;
     int pointCounter;
+    double calibratedWidth;
+    double calibratedHeight;
 
 signals:
     void calibrationPointReceived(QPoint p);

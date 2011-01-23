@@ -1,7 +1,6 @@
 #include <QtGui/QApplication>
-#include "calibrationwindow.h"
 #include "irthread.h"
-
+#include "calibrationwindow.h"
 
 int main(int argc, char *argv[])
 {
@@ -13,6 +12,7 @@ int main(int argc, char *argv[])
     thread.start();
 
     QObject::connect(&thread,SIGNAL(IRInputReceived(int,int,int)),&w,SLOT(inputReceived(int,int,int)));
+    QObject::connect(&thread,SIGNAL(mouseReleased()),&w,SLOT(setMouseReleased()));
 
     w.show();
 

@@ -1,8 +1,8 @@
-#include "inputcalibration.h"
-
 #include <QDesktopWidget>
 #include <QApplication>
 #include <QDebug>
+
+#include "inputcalibration.h"
 
 // class constructor
 // - get screen width/height and store them
@@ -62,7 +62,8 @@ void InputCalibration::addCalibrationSample(QPoint newPoint)
 
 
     // sum with existing values
-    sampleAverage += sampleAverage + newPoint;
+    //sampleAverage += sampleAverage + newPoint;   BURASINI DEĞİŞTİRİYORUM!
+    sampleAverage += newPoint;
     sampleCounterForCurrentPoint++;
     prevSample = newPoint;
 
@@ -81,6 +82,11 @@ void InputCalibration::addCalibrationSample(QPoint newPoint)
 
     if(pointCounter == NUM_CALIBRATION_POINTS) {
         // we have all the calibration points we need
+
+        // calculate new x-y coordinates average width and height, use them in the linear transformation. CAUTION! coming x's are y's for us, and y's are x's!
+        calibratedHeight = ((calibrationPoints[1].y() - calibrationPoints[0].y()) + (calibrationPoints[2].y() - calibrationPoints[3].y())) / 2;
+        calibratedWidth = ((calibrationPoints[0].x() - calibrationPoints[3].x()) + (calibrationPoints[1].x() - calibrationPoints[2].x())) / 2;
+
         isCalibrated = true;
         pointCounter = 0;
     }
@@ -91,13 +97,24 @@ void InputCalibration::addCalibrationSample(QPoint newPoint)
 QPoint InputCalibration::mapFromWiimoteToScreen(QPoint inputPoint)
 {
     // if calibration was not performed, return the same point
+    // TODO transformation ı duzelt, sadece ust ve sag kenar degil dort kenari da kullanır hale getir.
     if(!isCalibrated)
         return inputPoint;
 
     int x = inputPoint.x(), y = inputPoint.y();
 
-    x = ((x - calibrationPoints[3].x()) * screenWidth)  / (double)(calibrationPoints[2].x() - calibrationPoints[3].x()) ;
-    y = (((y - calibrationPoints[0].y() )* screenHeight) / (double)( calibrationPoints[3].y() - calibrationPoints[0].y())) ;
+    //printf("gelen point %d %d\n",x,y);
+
+    double m,n;
+
+    m = (calibrationPoints[0].x() + calibrationPoints[1].x()) / 2.0 - x;
+    n = y - (calibrationPoints[0].y() + calibrationPoints[3].y()) / 2.0;
+
+    x = (n/calibratedHeight) * screenWidth;
+    y = (m/calibratedWidth) * screenHeight;
+
+
+    //printf("giden point %d %d\n",x,y);
 
     return QPoint(x,y);
 }

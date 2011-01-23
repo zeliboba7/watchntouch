@@ -1,5 +1,7 @@
 QT       += core gui
 
+CONFIG += qtestlib
+
 TARGET = calibration
 TEMPLATE = app
 
@@ -15,4 +17,4 @@ HEADERS  += calibrationwindow.h \
 
 FORMS    += calibrationwindow.ui
 
-LIBS += -lwiiuse
+LIBS += -lwiiuse -Wall -pipe -fPIC -funroll-loops
