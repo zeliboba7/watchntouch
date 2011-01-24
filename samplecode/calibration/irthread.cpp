@@ -74,6 +74,9 @@ IRThread::IRThread()
 
     wiiuse_rumble(wiimotes[0], 0);
     wiiuse_set_ir(wiimotes[0], 1);
+    wiiuse_motion_sensing(wiimotes[0], 1);
+
+    //wiiuse_set_ir_sensitivity(wiimotes[0], 2);
 
     previousPoint.setX(0);
     previousPoint.setY(0);
@@ -84,8 +87,8 @@ IRThread::IRThread()
 
 
 IRThread::~IRThread()
-    {
-    }
+{
+}
 
 // TODO aslında şu anda tek tür event gönderimi yapıyoruz, sadece IR point görünüyorken.
 // onun yerine şu yaklaşımı izlesek faydalı olacak aslında:
@@ -96,17 +99,20 @@ IRThread::~IRThread()
 
 void IRThread::run()
 {
-    while(1) {        
-        if (wiiuse_poll(wiimotes, MAX_WIIMOTES)) {
-            qWarning() << "wii event: " << wiimotes[0]->event;
+    int poll_res = 0;
+    while(1) {
+        poll_res = wiiuse_poll(wiimotes, MAX_WIIMOTES);
+        //qWarning() << "poll result" << poll_res;
+        if (poll_res) {
+            //qWarning() << "wii event: " << wiimotes[0]->event;
             if(wiimotes[0]->event == WIIUSE_EVENT) {
-                qWarning() << "1";
+                //qWarning() << "1";
                 if (WIIUSE_USING_IR(wiimotes[0])) {
                     int i = 0;                    
                     /* go through each of the 4 possible IR sources */
                     for (; i < 1; ++i) {
                         /* check if the source is visible */
-                        qWarning() << "AAAAA : " << wiimotes[0]->ir.dot[i].visible << previous[i];
+                        // qWarning() << "AAAAA : " << wiimotes[0]->ir.dot[i].visible << previous[i];
                         if (wiimotes[0]->ir.dot[i].visible) {
                             if(previous[0] == false) {
                                 previous[0] = true;
@@ -124,13 +130,14 @@ void IRThread::run()
                             previousPoint = QPoint(wiimotes[0]->ir.dot[i].x,wiimotes[0]->ir.dot[i].y);
                         }
                         else if(previous[0] == false) {
-                            qWarning() << "Hep buraya mı giriyor acaba?";
+                            //qWarning() << "Hep buraya mı giriyor acaba?";
                         }
                     }
                 }
             }
         }
     }
+
     exec();
 }
 

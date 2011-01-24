@@ -140,6 +140,8 @@ void CalibrationWindow::mousePress(int button,QPoint p) {
 
     qWarning() << "Pressed!";
 
+    QCursor::setPos(p);
+
     XEvent event;
 
     if(dpy == NULL)
@@ -178,6 +180,8 @@ void CalibrationWindow::mouseRelease(int button,QPoint p) {
 
     qWarning() << "Released!";
 
+    QCursor::setPos(p);
+
     XEvent event;
 
     if(dpy == NULL)
@@ -213,6 +217,8 @@ void CalibrationWindow::mouseRelease(int button,QPoint p) {
 void CalibrationWindow::mouseMove(int button, QPoint p)
 {
     qWarning() << "Move!";
+
+    QCursor::setPos(p);
 
     XEvent event;
 
