@@ -33,6 +33,7 @@ public:
     void processWiimotePoint(QPoint inputPoint);
 
     void recalibrate();
+    double getCalibratedDistance(QPoint p1, QPoint p2, QPoint p3);
 
 private:
     QPoint calibrationPoints[NUM_CALIBRATION_POINTS];

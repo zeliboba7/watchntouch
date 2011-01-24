@@ -1,6 +1,7 @@
 #include <QDesktopWidget>
 #include <QApplication>
 #include <QDebug>
+#include <math.h>
 
 #include "inputcalibration.h"
 
@@ -84,14 +85,39 @@ void InputCalibration::addCalibrationSample(QPoint newPoint)
         // we have all the calibration points we need
 
         // calculate new x-y coordinates average width and height, use them in the linear transformation. CAUTION! coming x's are y's for us, and y's are x's!
-        /*calibratedHeight = ((calibrationPoints[1].y() - calibrationPoints[0].y()) + (calibrationPoints[2].y() - calibrationPoints[3].y())) / 2;
-        calibratedWidth = ((calibrationPoints[0].x() - calibrationPoints[3].x()) + (calibrationPoints[1].x() - calibrationPoints[2].x())) / 2;
-        emit calibrated();
-*/
+        calibratedHeight = (sqrt((calibrationPoints[0].x() - calibrationPoints[1].x())*(calibrationPoints[0].x() - calibrationPoints[1].x()) + (calibrationPoints[0].y() - calibrationPoints[1].y())*(calibrationPoints[0].y() - calibrationPoints[1].y()))
+                            + sqrt((calibrationPoints[3].x() - calibrationPoints[2].x())*(calibrationPoints[3].x() - calibrationPoints[2].x()) + (calibrationPoints[3].y() - calibrationPoints[2].y())*(calibrationPoints[3].y() - calibrationPoints[2].y()))) / 2;
+        calibratedWidth =  (sqrt((calibrationPoints[0].x() - calibrationPoints[3].x())*(calibrationPoints[0].x() - calibrationPoints[3].x()) + (calibrationPoints[0].y() - calibrationPoints[3].y())*(calibrationPoints[0].y() - calibrationPoints[3].y()))
+                            + sqrt((calibrationPoints[1].x() - calibrationPoints[2].x())*(calibrationPoints[1].x() - calibrationPoints[2].x()) + (calibrationPoints[1].y() - calibrationPoints[2].y())*(calibrationPoints[1].y() - calibrationPoints[2].y()))) / 2 ;
+
+        //emit calibrated();
+
         isCalibrated = true;
         pointCounter = 0;
     }
 }
+
+double InputCalibration::getCalibratedDistance(QPoint p1, QPoint p2, QPoint p3) {
+
+    double m,n,distance1,distance2;
+    int x = p3.x();
+    int y = p3.y();
+
+    // line of points 0 and 3, y = mx + n
+
+    m = (p1.y() - p2.y()) / (p1.x() - p2.x());
+    n = p1.y() - m * p1.x();
+
+    // distance btwn x,y to the found line. ax + by + c / sqrt(a*a + b*b); here we have y = mx + n --> mx + n - y = 0;
+
+    distance1 =  fabs( (ml * x + (-1) * y + n) ) / sqrt(m * m + 1);
+
+    distance2 = sqrt( (calibrationPoints[0].x() - x)*(calibrationPoints[0].x() - x) + (calibrationPoints[0].y() - y)*(calibrationPoints[0].y() - y) );
+
+    return sqrt(distance2*distance2 - distance1*distance1);
+
+}
+
 
 // map from Wiimote coordinates to screen coordinates
 // according to current calibration information
@@ -105,19 +131,31 @@ QPoint InputCalibration::mapFromWiimoteToScreen(QPoint inputPoint)
     int x = inputPoint.x(), y = inputPoint.y();
 
     //printf("gelen point %d %d\n",x,y);
-/*
-    double m,n;
 
-    m = (calibrationPoints[0].x() + calibrationPoints[1].x()) / 2.0 - x;
-    n = y - (calibrationPoints[0].y() + calibrationPoints[3].y()) / 2.0;
+    double calibratedDistWidthLeft,calibratedDistWidthRight;
+    double calibratedDistHeightUp,calibratedDistHeightDown;
+    double calibratedDistWidth,calibratedDistHeight;
 
-    x = (n/calibratedHeight) * screenWidth;
-    y = (m/calibratedWidth) * screenHeight;
+    calibratedDistWidthLeft = getCalibratedDistance(QPoint(calibrationPoints[0]),QPoint(calibrationPoints[3]),QPoint(x,y));
+    calibratedDistWidthRight = getCalibratedDistance(QPoint(calibrationPoints[1]),QPoint(calibrationPoints[2]),QPoint(x,y));
+
+    calibratedDistWidth = (calibratedDistWidthLeft + calibratedDistWidthRight) / 2;
+
+    calibratedDistHeightUp = getCalibratedDistance(QPoint(calibrationPoints[0]),QPoint(calibrationPoints[1]),QPoint(x,y));
+    calibratedDistHeightDown = getCalibratedDistance(QPoint(calibrationPoints[3]),QPoint(calibrationPoints[2]),QPoint(x,y));
+
+    calibratedDistHeight = (calibratedDistHeightUp + calibratedDistHeightDown) / 2;
+
+    //m = (calibrationPoints[0].x() + calibrationPoints[1].x()) / 2.0 - x;
+    //n = y - (calibrationPoints[0].y() + calibrationPoints[3].y()) / 2.0;
+
+    x = (calibratedDistHeight/calibratedHeight) * screenWidth;
+    y = (calibratedDistWidth/calibratedWidth) * screenHeight;
 
 
-    //printf("giden point %d %d\n",x,y);*/
-     x = ((x - calibrationPoints[3].x()) * screenWidth)  / (double)(calibrationPoints[2].x() - calibrationPoints[3].x()) ;
-    y = (((y - calibrationPoints[0].y() )* screenHeight) / (double)( calibrationPoints[3].y() - calibrationPoints[0].y())) ;
+    //printf("giden point %d %d\n",x,y);
+    //x = ((x - calibrationPoints[3].x()) * screenWidth)  / (double)(calibrationPoints[2].x() - calibrationPoints[3].x()) ;
+    //y = (((y - calibrationPoints[0].y() )* screenHeight) / (double)( calibrationPoints[3].y() - calibrationPoints[0].y())) ;
 
     return QPoint(x,y);
 }
