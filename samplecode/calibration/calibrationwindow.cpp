@@ -15,53 +15,55 @@ CalibrationWindow::CalibrationWindow(QWidget *parent) :
 {
     // UI
     ui->setupUi(this);
-
     draw = NULL;
 
     // set calibration point width and height to default
     calibrationPointWidth = calibrationPointHeight = 100;
-
     calibrationPointTouchCount = 0;
 
-    // TODO the section below draws a red circle for initial points and green for touched points
-    // remove this and insert Giray's images instead
-    QPixmap initialPixmap(50, 50);
-    QPixmap touchedPixmap(50, 50);
-    QPainter p;
-    p.begin(&initialPixmap);
-    p.fillRect(0,0,50,50,Qt::white);
-    p.setBrush(QBrush(Qt::red));
-    p.drawEllipse(0,0,50,50);
-    p.end();
-    p.begin(&touchedPixmap);
-    p.fillRect(0,0,50,50,Qt::white);
-    p.setBrush(QBrush(Qt::green));
-    p.drawEllipse(0,0,50,50);
-    p.end();
+    QImage initial, touched;
+    initial.load(":/images/touchpointred.png");
+    touched.load(":/images/touchpointgreen.png");
 
-    // TODO remove the multitouch testing pixmap
-    QPixmap testPixmap(20,20);
-    testPixmap.fill();
-    p.begin(&testPixmap);
-    p.setBrush(QBrush(Qt::blue));
-    p.drawEllipse(0,0,20,20);
-    p.end();
-    ui->multitouchTestLabel1->setPixmap(testPixmap);
-    QPixmap testPixmap2(20,20);
-    testPixmap2.fill();
-    p.begin(&testPixmap2);
-    p.setBrush(QBrush(Qt::yellow));
-    p.drawEllipse(0,0,20,20);
-    p.end();
-    ui->multitouchTestLabel2->setPixmap(testPixmap2);
-
-    setCalibrationPointImages(initialPixmap.toImage(), touchedPixmap.toImage());
+    setCalibrationPointImages(initial, touched);
 
     connect(&mapper, SIGNAL(calibrationPointReceived(QPoint)),this,SLOT(calibrationPointReceived(QPoint)));
 
+    //setCalibrationPointTouchStatus(-1); // hide all calibration points
+
+
+    // show connection instructions in fullscreen
+    showFullScreen();
+    ui->connectionInstructions->move(0,0);
+    ui->connectionInstructions->resize(size());
+    ui->connectionInstructions->raise();
+
+    QImage instructions;
+    instructions.load(":/images/connection.png");
+    instructions = instructions.scaled(ui->connectionInstructions->size(),Qt::KeepAspectRatio);
+
+    ui->calibrationPoint1->setVisible(false);
+
+    ui->connectionInstructions->setPixmap(QPixmap::fromImage(instructions));
+
+    receiver = new IRThread();  // create input receiver thread
+
+    QObject::connect(receiver,SIGNAL(IRInputReceived(int,int,int,int)),this,SLOT(inputReceived(int,int,int,int)));
+    QObject::connect(receiver,SIGNAL(connected()),this,SLOT(connected()));
+
+    receiver->start();
+
     dpy = XOpenDisplay(NULL);
 
-    showFullScreen();
+}
+
+void CalibrationWindow::connected()
+{
+    // wiimote is now connected
+    // hide instructions
+    ui->connectionInstructions->setVisible(false);
+    // show first calibration point
+    ui->calibrationPoint1->setVisible(true);
 }
 
 
@@ -115,9 +117,6 @@ void CalibrationWindow::repositionItems()
 
     // reposition calibration point 4 to lower left hand corner
     ui->calibrationPoint4->move(0, height - calibrationPointHeight  - HEIGHT_FIX);
-
-    // reposition the instructions label to the middle of the screen
-    ui->instructions->move((width - ui->instructions->width()) / 2,(height - ui->instructions->height()) / 2);
 }
 
 // sets the status of the calibration points
@@ -131,7 +130,7 @@ void CalibrationWindow::setCalibrationPointTouchStatus(int touchedCount)
     ui->calibrationPoint3->setPixmap(touchedCount > 2 ? calibrationPointImageTouched : calibrationPointImageInitial);
     ui->calibrationPoint4->setPixmap(touchedCount > 3 ? calibrationPointImageTouched : calibrationPointImageInitial);
 
-    ui->calibrationPoint1->setVisible(true);
+    ui->calibrationPoint1->setVisible(touchedCount > -1 ? true : false);
     ui->calibrationPoint2->setVisible(touchedCount > 0 ? true : false);
     ui->calibrationPoint3->setVisible(touchedCount > 1 ? true : false);
     ui->calibrationPoint4->setVisible(touchedCount > 2 ? true : false);

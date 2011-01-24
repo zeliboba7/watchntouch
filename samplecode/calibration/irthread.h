@@ -23,23 +23,26 @@ class IRThread : public QThread
 
     Q_OBJECT
 
-    public:
-        IRThread();
-        virtual ~IRThread();
+public:
+    IRThread();
+    virtual ~IRThread();
 
-    public:
-        void run(); // From QThread
+public:
+    void run(); // From QThread
 
 signals:
-        void IRInputReceived(int x,int y,int i,int type);
+    void IRInputReceived(int x,int y,int i,int type);
+    void connected();
 
-    private:
-        wiimote** wiimotes;
-        int found;
-        int connected;
-        QPoint currentPoint;
-        QPoint previousPoint;
-        bool previous[4];
+private:
+    wiimote** wiimotes;
+    int found;
+    int isConnected;
+    QPoint currentPoint;
+    QPoint previousPoint;
+    bool previous[4];
+
+    void initialize();
 
 
 };

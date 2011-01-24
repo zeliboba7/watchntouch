@@ -24,3 +24,6 @@ HEADERS  += calibrationwindow.h \
 FORMS    += calibrationwindow.ui
 
 LIBS += -lwiiuse -lX11 -lXtst -lXext -Wall -pipe -fPIC -funroll-loops
+
+RESOURCES += \
+    resources.qrc

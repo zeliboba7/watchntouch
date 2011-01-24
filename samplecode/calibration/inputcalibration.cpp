@@ -110,9 +110,9 @@ double InputCalibration::getCalibratedDistance(QPoint p1, QPoint p2, QPoint p3) 
 
     // distance btwn x,y to the found line. ax + by + c / sqrt(a*a + b*b); here we have y = mx + n --> mx + n - y = 0;
 
-    distance1 =  fabs( (ml * x + (-1) * y + n) ) / sqrt(m * m + 1);
+    distance1 =  abs( (m * x + (-1) * y + n) ) / sqrt(m * m + 1);
 
-    distance2 = sqrt( (calibrationPoints[0].x() - x)*(calibrationPoints[0].x() - x) + (calibrationPoints[0].y() - y)*(calibrationPoints[0].y() - y) );
+    distance2 = sqrt( (p1.x() - x)*(p1.x() - x) + (p1.y() - y)*(p1.y() - y) );
 
     return sqrt(distance2*distance2 - distance1*distance1);
 

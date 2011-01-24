@@ -10,6 +10,16 @@
 
 IRThread::IRThread()
 {
+
+}
+
+
+IRThread::~IRThread()
+{
+}
+
+void IRThread::initialize()
+{
     // wiiuse setup
     /*
     *	Initialize an array of wiimote objects.
@@ -31,9 +41,6 @@ IRThread::IRThread()
     *	This will return the number of actual wiimotes that are in discovery mode.
     */
 
-    // TODO bunu loop içinde tekrarlayalım, ta ki wiimote bulunana kadar, ama uygun arabirimi de olsun
-    // (press and hold 1 and 2 on the wiimote
-
     found = wiiuse_find(wiimotes, MAX_WIIMOTES, 5);
     if (!found) {
             printf ("No wiimotes found.");
@@ -49,12 +56,14 @@ IRThread::IRThread()
     *	This will return the number of established connections to the found wiimotes.
     */
 
-    connected = wiiuse_connect(wiimotes, MAX_WIIMOTES);
-    if (connected)
-            printf("Connected to %i wiimotes (of %i found).\n", connected, found);
+    isConnected = wiiuse_connect(wiimotes, MAX_WIIMOTES);
+    if (isConnected) {
+            printf("isConnected to %i wiimotes (of %i found).\n", isConnected, found);
+            emit connected();
+    }
     else {
             printf("Failed to connect to any wiimote.\n");
-            exit(-1);
+            return;
     }
 
     /*
@@ -83,12 +92,6 @@ IRThread::IRThread()
     previousPoint.setY(0);
 
     previous[0] = false;
-
-}
-
-
-IRThread::~IRThread()
-{
 }
 
 // TODO aslında şu anda tek tür event gönderimi yapıyoruz, sadece IR point görünüyorken.
@@ -100,6 +103,9 @@ IRThread::~IRThread()
 
 void IRThread::run()
 {
+    //while(!isConnected) TODO uncommenting caused crash - why?
+        initialize();
+
     int poll_res = 0;
     while(1) {
         poll_res = wiiuse_poll(wiimotes, MAX_WIIMOTES);

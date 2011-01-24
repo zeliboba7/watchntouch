@@ -20,6 +20,7 @@
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include "irthread.h"
 
 #define HEIGHT_FIX  20  // TODO set this according to platform
 #define MAX_WIIMOTES    1
@@ -55,6 +56,7 @@ private:
     Display * dpy;
     QPoint prevPoint;
     BaseDrawingWidget *draw;
+    IRThread *receiver;
 
 
     void repositionItems();
@@ -69,6 +71,7 @@ protected:
 public slots:
     void inputReceived(int x,int y,int i,int type);
     void calibrationPointReceived(QPoint p);
+    void connected();
 
 };
 

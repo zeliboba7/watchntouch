@@ -35,6 +35,8 @@ public:
     void recalibrate();
     double getCalibratedDistance(QPoint p1, QPoint p2, QPoint p3);
 
+    double getCalibratedDistance(QPoint,QPoint,QPoint);
+
 private:
     QPoint calibrationPoints[NUM_CALIBRATION_POINTS];
     QPoint sampleAverage;
@@ -45,6 +47,8 @@ private:
     int pointCounter;
     double calibratedWidth;
     double calibratedHeight;
+
+
 
 signals:
     void calibrationPointReceived(QPoint p);

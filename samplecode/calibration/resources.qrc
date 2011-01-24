@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/images">
+        <file alias="touchpointred.png">resources/touch point.png</file>
+        <file alias="touchpointgreen.png">resources/touch point green.png</file>
+        <file alias="connection.png">resources/connection.png</file>
+    </qresource>
+</RCC>
