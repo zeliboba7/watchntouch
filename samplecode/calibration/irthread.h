@@ -14,6 +14,10 @@
 #define HEIGHT_FIX  20  // TODO set this according to platform
 #define MAX_WIIMOTES    1
 
+#define MOUSE_PRESSED 0
+#define MOUSE_MOVE 1
+#define MOUSE_RELEASED 2
+
 class IRThread : public QThread
 {
 
@@ -27,20 +31,15 @@ class IRThread : public QThread
         void run(); // From QThread
 
 signals:
-        void IRInputReceived(int x,int y,int i);
-        void mouseReleased();
+        void IRInputReceived(int x,int y,int i,int type);
 
     private:
         wiimote** wiimotes;
         int found;
         int connected;
-        QPoint current;
-        QPoint previous;
-        int counter;
-        bool startRelease;
-
-    public slots:
-        void releasedChecking();
+        QPoint currentPoint;
+        QPoint previousPoint;
+        bool previous[4];
 
 
 };

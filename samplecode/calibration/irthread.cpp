@@ -62,6 +62,7 @@ IRThread::IRThread()
     *	to tell which wiimotes are connected (just like the wii does).
     */
 
+
     wiiuse_set_leds(wiimotes[0], WIIMOTE_LED_1);
     wiiuse_rumble(wiimotes[0], 1);
 
@@ -74,17 +75,13 @@ IRThread::IRThread()
     wiiuse_rumble(wiimotes[0], 0);
     wiiuse_set_ir(wiimotes[0], 1);
 
-    previous.setX(0);
-    previous.setY(0);
-    counter = 0;
-    startRelease = false;
+    previousPoint.setX(0);
+    previousPoint.setY(0);
+
+    previous[0] = false;
 
 }
 
-void IRThread::releasedChecking() {
-    printf("startRelease: %d\n",startRelease);
-    startRelease = true;
-}
 
 IRThread::~IRThread()
     {
@@ -99,36 +96,36 @@ IRThread::~IRThread()
 
 void IRThread::run()
 {
-    while(1) {
-        //printf("startRls: %d\n",startRelease);
-        if(startRelease) {
-            if(current == previous && previous != QPoint(0,0)) {
-                counter++;
-                printf("AAA: %d %d %d %d\n",current.x(), current.y(), previous.x() , previous.y());
-            }
-            if(counter >= 1000) {
-                counter = 0;
-                printf("counter 250 gecti!\n");
-                startRelease = false;
-                emit mouseReleased();
-            }
-            previous.setX(current.x());
-            previous.setY(current.y());
-            //printf("counter: %d\n",counter);
-        }
+    while(1) {        
         if (wiiuse_poll(wiimotes, MAX_WIIMOTES)) {
+            qWarning() << "wii event: " << wiimotes[0]->event;
             if(wiimotes[0]->event == WIIUSE_EVENT) {
+                qWarning() << "1";
                 if (WIIUSE_USING_IR(wiimotes[0])) {
                     int i = 0;                    
                     /* go through each of the 4 possible IR sources */
-                    for (; i < 4; ++i) {
-                        /* check if the source is visible */                        
+                    for (; i < 1; ++i) {
+                        /* check if the source is visible */
+                        qWarning() << "AAAAA : " << wiimotes[0]->ir.dot[i].visible << previous[i];
                         if (wiimotes[0]->ir.dot[i].visible) {
-                                printf("yeni aldım!\n");
-                                current = QPoint(wiimotes[0]->ir.dot[i].x,(wiimotes[0]->ir.dot[i].y));
-                                counter = 0;
-                                emit IRInputReceived(wiimotes[0]->ir.dot[i].x, wiimotes[0]->ir.dot[i].y, i);                                
-                        }                        
+                            if(previous[0] == false) {
+                                previous[0] = true;
+                                emit IRInputReceived(wiimotes[0]->ir.dot[i].x, wiimotes[0]->ir.dot[i].y,i,MOUSE_PRESSED);
+                                previousPoint = QPoint(wiimotes[0]->ir.dot[i].x,wiimotes[0]->ir.dot[i].y);
+                            }
+                            else if(previous[0] == true) {
+                                emit IRInputReceived(wiimotes[0]->ir.dot[i].x, wiimotes[0]->ir.dot[i].y,i,MOUSE_MOVE);
+                                previousPoint = QPoint(wiimotes[0]->ir.dot[i].x,wiimotes[0]->ir.dot[i].y);
+                            }
+                        }
+                        else if(previous[0] == true) {
+                            previous[0] = false;
+                            emit IRInputReceived(wiimotes[0]->ir.dot[i].x, wiimotes[0]->ir.dot[i].y,i,MOUSE_RELEASED);
+                            previousPoint = QPoint(wiimotes[0]->ir.dot[i].x,wiimotes[0]->ir.dot[i].y);
+                        }
+                        else if(previous[0] == false) {
+                            qWarning() << "Hep buraya mı giriyor acaba?";
+                        }
                     }
                 }
             }
@@ -136,4 +133,20 @@ void IRThread::run()
     }
     exec();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

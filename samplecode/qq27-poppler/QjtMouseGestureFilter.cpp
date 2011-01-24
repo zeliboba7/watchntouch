@@ -35,6 +35,7 @@
  *
  */
 
+#include <QDebug>
 #include "QjtMouseGestureFilter.h"
 #include "QjtMouseGesture.h"
 
@@ -158,7 +159,7 @@ bool QjtMouseGestureFilter::mouseButtonPressEvent( QObject *obj, QMouseEvent *ev
 {
     if( event->button() == d->gestureButton )
     {
-        printf("pressedx!\n");
+        qWarning() << "pressedx";
         d->mgr.startGesture( event->pos().x(), event->pos().y() );
         d->tracing = true;
 
@@ -172,7 +173,7 @@ bool QjtMouseGestureFilter::mouseButtonReleaseEvent( QObject *obj, QMouseEvent *
 {
     if( d->tracing && event->button() == d->gestureButton )
     {
-        printf("releasedx!\n");
+        qWarning() << "releasedx!";
         d->mgr.endGesture( event->pos().x(), event->pos().y() );
         d->tracing = false;
 
@@ -184,6 +185,7 @@ bool QjtMouseGestureFilter::mouseButtonReleaseEvent( QObject *obj, QMouseEvent *
 
 bool QjtMouseGestureFilter::mouseMoveEvent( QObject *obj, QMouseEvent *event )
 {
+    qWarning() << "move" << d->tracing ;
     if( d->tracing )
     {
         d->mgr.addPoint( event->pos().x(), event->pos().y() );

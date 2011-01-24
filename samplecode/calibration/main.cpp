@@ -11,9 +11,7 @@ int main(int argc, char *argv[])
 
     thread.start();
 
-    QObject::connect(&thread,SIGNAL(IRInputReceived(int,int,int)),&w,SLOT(inputReceived(int,int,int)));
-    QObject::connect(&thread,SIGNAL(mouseReleased()),&w,SLOT(setReleased()));
-    QObject::connect(&w,SIGNAL(startReleaseChecking()),&thread,SLOT(releasedChecking()));
+    QObject::connect(&thread,SIGNAL(IRInputReceived(int,int,int,int)),&w,SLOT(inputReceived(int,int,int,int)));
 
     w.show();
 

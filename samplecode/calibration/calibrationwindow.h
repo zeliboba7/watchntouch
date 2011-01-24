@@ -51,33 +51,22 @@ private:
     QPixmap calibrationPointImageTouched;
     InputCalibration mapper;
     int calibrationPointWidth, calibrationPointHeight;    
-    Display *dpy;
-    Display *display;
     Window root_window;
-    XEvent eventx;
+    Display * dpy;
     QPoint prevPoint;  
-    bool pressed;
-    bool released;
-    bool first;
 
     void repositionItems();
     void setCalibrationPointTouchStatus(int touchedCount);
-    void mouseClick(int button);
-    void mousePressed(int button);
-    void mouseReleased(int button);
+    void mouseMove(int button, QPoint p);
+    void mousePress(int button, QPoint p);
+    void mouseRelease(int button, QPoint p);
 
 protected:
     bool event(QEvent *event);    
 
 public slots:
-    void inputReceived(int x,int y,int i);
+    void inputReceived(int x,int y,int i,int type);
     void calibrationPointReceived(QPoint p);
-    void setReleased();
-
-signals:
-    void startReleaseChecking();
-
-
 
 };
 
