@@ -158,6 +158,7 @@ bool QjtMouseGestureFilter::mouseButtonPressEvent( QObject *obj, QMouseEvent *ev
 {
     if( event->button() == d->gestureButton )
     {
+        printf("pressedx!\n");
         d->mgr.startGesture( event->pos().x(), event->pos().y() );
         d->tracing = true;
 
@@ -171,6 +172,7 @@ bool QjtMouseGestureFilter::mouseButtonReleaseEvent( QObject *obj, QMouseEvent *
 {
     if( d->tracing && event->button() == d->gestureButton )
     {
+        printf("releasedx!\n");
         d->mgr.endGesture( event->pos().x(), event->pos().y() );
         d->tracing = false;
 

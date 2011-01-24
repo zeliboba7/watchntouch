@@ -86,6 +86,7 @@ void InputCalibration::addCalibrationSample(QPoint newPoint)
         // calculate new x-y coordinates average width and height, use them in the linear transformation. CAUTION! coming x's are y's for us, and y's are x's!
         calibratedHeight = ((calibrationPoints[1].y() - calibrationPoints[0].y()) + (calibrationPoints[2].y() - calibrationPoints[3].y())) / 2;
         calibratedWidth = ((calibrationPoints[0].x() - calibrationPoints[3].x()) + (calibrationPoints[1].x() - calibrationPoints[2].x())) / 2;
+        emit calibrated();
 
         isCalibrated = true;
         pointCounter = 0;

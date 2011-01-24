@@ -55,12 +55,12 @@ CalibrationWindow::CalibrationWindow(QWidget *parent) :
 
     connect(&mapper, SIGNAL(calibrationPointReceived(QPoint)),this,SLOT(calibrationPointReceived(QPoint)));
 
-    dpy = XOpenDisplay(0);
-    root_window = XRootWindow(dpy, 0);
-    XSelectInput(dpy, root_window, KeyReleaseMask);
+    dpy = XOpenDisplay(NULL);
+    XSelectInput(dpy,root_window,Button1MotionMask);
 
     pressed = false;
     released = false;
+    first = true;
 
     showFullScreen();
 }
@@ -141,21 +141,22 @@ void CalibrationWindow::setCalibrationPointTouchStatus(int touchedCount)
     // TODO show "calibration is complete" screen when four points are received
 }
 
-void CalibrationWindow::mouseClick(int button)
-{
+void CalibrationWindow::mousePressed(int button) {
+
+    printf("pressed\n");
+
     Display *display = XOpenDisplay(NULL);
 
-    XEvent event;
+        XEvent event;
 
-    if(display == NULL)
-    {
-        fprintf(stderr, "Errore nell'apertura del Display !!!\n");
-        exit(EXIT_FAILURE);
-    }
+        if(display == NULL)
+        {
+            fprintf(stderr, "Errore nell'apertura del Display !!!\n");
+            exit(EXIT_FAILURE);
+        }
 
-    memset(&event, 0x00, sizeof(event));
+        memset(&event, 0x00, sizeof(event));
 
-    if(!pressed && !released) {
         event.type = ButtonPress;
         event.xbutton.button = button;
         event.xbutton.same_screen = True;
@@ -173,11 +174,85 @@ void CalibrationWindow::mouseClick(int button)
 
         if(XSendEvent(display, PointerWindow, True, 0xfff, &event) == 0) fprintf(stderr, "Errore nell'invio dell'evento !!!\n");
 
-        //XFlush(display);
-        pressed = true;
-    }
-    else if(released) {
         XFlush(display);
+        XCloseDisplay(display);
+
+}
+
+void CalibrationWindow::mouseReleased(int button) {
+
+        printf("RELEASED!\n");
+        Display *display = XOpenDisplay(NULL);
+
+        XEvent event;
+
+        if(display == NULL)
+        {
+            fprintf(stderr, "Errore nell'apertura del Display !!!\n");
+            exit(EXIT_FAILURE);
+        }
+
+        memset(&event, 0x00, sizeof(event));
+
+        event.type = ButtonRelease;
+        event.xbutton.state = 0x100;
+        event.xbutton.button = button;
+        event.xbutton.same_screen = True;
+
+        XQueryPointer(display, RootWindow(display, DefaultScreen(display)), &event.xbutton.root, &event.xbutton.window, &event.xbutton.x_root, &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y, &event.xbutton.state);
+
+        event.xbutton.subwindow = event.xbutton.window;
+
+        while(event.xbutton.subwindow)
+        {
+            event.xbutton.window = event.xbutton.subwindow;
+
+            XQueryPointer(display, event.xbutton.window, &event.xbutton.root, &event.xbutton.subwindow, &event.xbutton.x_root, &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y, &event.xbutton.state);
+        }
+
+        //usleep(100000);
+
+        if(XSendEvent(display, PointerWindow, True, 0xfff, &event) == 0) fprintf(stderr, "Errore nell'invio dell'evento !!!\n");
+
+        XFlush(display);
+
+        XCloseDisplay(display);
+}
+
+void CalibrationWindow::mouseClick(int button)
+{
+    printf("RELEASED!\n");
+    Display *display = XOpenDisplay(NULL);
+
+        XEvent event;
+
+        if(display == NULL)
+        {
+            fprintf(stderr, "Errore nell'apertura del Display !!!\n");
+            exit(EXIT_FAILURE);
+        }
+
+        memset(&event, 0x00, sizeof(event));
+
+        event.type = ButtonPress;
+        event.xbutton.button = button;
+        event.xbutton.same_screen = True;
+
+        XQueryPointer(display, RootWindow(display, DefaultScreen(display)), &event.xbutton.root, &event.xbutton.window, &event.xbutton.x_root, &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y, &event.xbutton.state);
+
+        event.xbutton.subwindow = event.xbutton.window;
+
+        while(event.xbutton.subwindow)
+        {
+            event.xbutton.window = event.xbutton.subwindow;
+
+            XQueryPointer(display, event.xbutton.window, &event.xbutton.root, &event.xbutton.subwindow, &event.xbutton.x_root, &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y, &event.xbutton.state);
+        }
+
+        if(XSendEvent(display, PointerWindow, True, 0xfff, &event) == 0) fprintf(stderr, "Errore nell'invio dell'evento !!!\n");
+
+        XFlush(display);
+
         //usleep(100000);
 
         event.type = ButtonRelease;
@@ -185,15 +260,12 @@ void CalibrationWindow::mouseClick(int button)
 
         if(XSendEvent(display, PointerWindow, True, 0xfff, &event) == 0) fprintf(stderr, "Errore nell'invio dell'evento !!!\n");
 
-        released = false;
-        pressed = false;
         XFlush(display);
+
         XCloseDisplay(display);
-    }
-    //XCloseDisplay(display);
 }
 
-void CalibrationWindow::setMouseReleased() {
+void CalibrationWindow::setReleased() {
     released = true;
 }
 
@@ -206,24 +278,35 @@ void CalibrationWindow::inputReceived(int x, int y, int i)
     }
     else if(mapper.calibrated()) {
         // TODO the events must be generated by EventGenerator
+
         QPoint newPoint = mapper.mapFromWiimoteToScreen(QPoint(x,y));
         if(i==0) {
-            //ui->multitouchTestLabel1->move(x,y);
+            root_window = XRootWindow(dpy, 0);
+            printf("asdasd1\n");
             XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, newPoint.x(), newPoint.y());
             XFlush(dpy);
-            //mouseClick(ButtonPress);
-            mouseClick(Button1);
-            //mouseClick(ButtonRelease);
-            //if((prevPoint-newPoint).manhattanLength() < CLICK_POINT_THRESHOLD)
-            //QPoint p(newPoint.x(),newPoint.y());
-            //QTest::mouseMove(dw.screen(-1),p);
-            //QTest::mouseClick(dw.screen(-1),Qt::LeftButton,Qt::NoModifier,p);
-            //printf("screen count %d\n",dw.screenCount());
-            //QTest::mousePress(dw.screen(-1),Qt::LeftButton,Qt::NoModifier,p);
-            //mouseClick(0);
+
+            if(!pressed && !released) {
+                pressed = true;
+                released = false;
+                printf("asdas\n");
+                mousePressed(Button1);
+                if(first) {
+                    printf("emission for release check\n");
+                    emit startReleaseChecking();
+                    first = false;
+                }
+            }
+            else if(released) {
+                mouseReleased(Button1);
+                printf("mouse released\n");
+                first = true;
+                pressed = false;
+                released = false;
+            }
         }
         if(i==1)
-            ui->multitouchTestLabel2->move(x,y);
+            ;//ui->multitouchTestLabel2->move(x,y);
     }
 }
 

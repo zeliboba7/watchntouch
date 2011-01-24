@@ -77,8 +77,13 @@ IRThread::IRThread()
     previous.setX(0);
     previous.setY(0);
     counter = 0;
+    startRelease = false;
 
+}
 
+void IRThread::releasedChecking() {
+    printf("startRelease: %d\n",startRelease);
+    startRelease = true;
 }
 
 IRThread::~IRThread()
@@ -95,25 +100,35 @@ IRThread::~IRThread()
 void IRThread::run()
 {
     while(1) {
+        //printf("startRls: %d\n",startRelease);
+        if(startRelease) {
+            if(current == previous && previous != QPoint(0,0)) {
+                counter++;
+                printf("AAA: %d %d %d %d\n",current.x(), current.y(), previous.x() , previous.y());
+            }
+            if(counter >= 1000) {
+                counter = 0;
+                printf("counter 250 gecti!\n");
+                startRelease = false;
+                emit mouseReleased();
+            }
+            previous.setX(current.x());
+            previous.setY(current.y());
+            //printf("counter: %d\n",counter);
+        }
         if (wiiuse_poll(wiimotes, MAX_WIIMOTES)) {
             if(wiimotes[0]->event == WIIUSE_EVENT) {
                 if (WIIUSE_USING_IR(wiimotes[0])) {
-                    int i = 0;
+                    int i = 0;                    
                     /* go through each of the 4 possible IR sources */
                     for (; i < 4; ++i) {
-                        /* check if the source is visible */
+                        /* check if the source is visible */                        
                         if (wiimotes[0]->ir.dot[i].visible) {
-                                current.setX(wiimotes[0]->ir.dot[i].x);
-                                current.setY(wiimotes[0]->ir.dot[i].y);
-                                if(previous != QPoint(0,0) && current == previous)
-                                    counter++;
-                                if(counter >= 100) {
-                                    emit mouseReleased();
-                                    counter = 0;
-                                }
-                                emit IRInputReceived(wiimotes[0]->ir.dot[i].x, wiimotes[0]->ir.dot[i].y, i);
-                                previous = current;
-                        }
+                                printf("yeni aldım!\n");
+                                current = QPoint(wiimotes[0]->ir.dot[i].x,(wiimotes[0]->ir.dot[i].y));
+                                counter = 0;
+                                emit IRInputReceived(wiimotes[0]->ir.dot[i].x, wiimotes[0]->ir.dot[i].y, i);                                
+                        }                        
                     }
                 }
             }

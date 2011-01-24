@@ -37,6 +37,10 @@ signals:
         QPoint current;
         QPoint previous;
         int counter;
+        bool startRelease;
+
+    public slots:
+        void releasedChecking();
 
 
 };

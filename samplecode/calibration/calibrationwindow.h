@@ -44,8 +44,6 @@ public:
     QWaitCondition wc;
     QMutex mutex;
     int calibrationPointTouchCount;
-    bool pressed;
-    bool released;
 
 private:
     Ui::CalibrationWindow *ui;
@@ -54,13 +52,19 @@ private:
     InputCalibration mapper;
     int calibrationPointWidth, calibrationPointHeight;    
     Display *dpy;
+    Display *display;
     Window root_window;
-    QPoint prevPoint;
-    QDesktopWidget dw;    
+    XEvent eventx;
+    QPoint prevPoint;  
+    bool pressed;
+    bool released;
+    bool first;
 
     void repositionItems();
     void setCalibrationPointTouchStatus(int touchedCount);
     void mouseClick(int button);
+    void mousePressed(int button);
+    void mouseReleased(int button);
 
 protected:
     bool event(QEvent *event);    
@@ -68,7 +72,11 @@ protected:
 public slots:
     void inputReceived(int x,int y,int i);
     void calibrationPointReceived(QPoint p);
-    void setMouseReleased();
+    void setReleased();
+
+signals:
+    void startReleaseChecking();
+
 
 
 };
