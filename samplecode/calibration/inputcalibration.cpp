@@ -84,10 +84,10 @@ void InputCalibration::addCalibrationSample(QPoint newPoint)
         // we have all the calibration points we need
 
         // calculate new x-y coordinates average width and height, use them in the linear transformation. CAUTION! coming x's are y's for us, and y's are x's!
-        calibratedHeight = ((calibrationPoints[1].y() - calibrationPoints[0].y()) + (calibrationPoints[2].y() - calibrationPoints[3].y())) / 2;
+        /*calibratedHeight = ((calibrationPoints[1].y() - calibrationPoints[0].y()) + (calibrationPoints[2].y() - calibrationPoints[3].y())) / 2;
         calibratedWidth = ((calibrationPoints[0].x() - calibrationPoints[3].x()) + (calibrationPoints[1].x() - calibrationPoints[2].x())) / 2;
         emit calibrated();
-
+*/
         isCalibrated = true;
         pointCounter = 0;
     }
@@ -105,7 +105,7 @@ QPoint InputCalibration::mapFromWiimoteToScreen(QPoint inputPoint)
     int x = inputPoint.x(), y = inputPoint.y();
 
     //printf("gelen point %d %d\n",x,y);
-
+/*
     double m,n;
 
     m = (calibrationPoints[0].x() + calibrationPoints[1].x()) / 2.0 - x;
@@ -115,7 +115,9 @@ QPoint InputCalibration::mapFromWiimoteToScreen(QPoint inputPoint)
     y = (m/calibratedWidth) * screenHeight;
 
 
-    //printf("giden point %d %d\n",x,y);
+    //printf("giden point %d %d\n",x,y);*/
+     x = ((x - calibrationPoints[3].x()) * screenWidth)  / (double)(calibrationPoints[2].x() - calibrationPoints[3].x()) ;
+    y = (((y - calibrationPoints[0].y() )* screenHeight) / (double)( calibrationPoints[3].y() - calibrationPoints[0].y())) ;
 
     return QPoint(x,y);
 }

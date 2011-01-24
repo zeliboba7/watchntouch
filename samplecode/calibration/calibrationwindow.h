@@ -13,7 +13,7 @@
 #ifndef WIN32
         #include <unistd.h>
 #endif
-
+#include "basedrawingwidget.h"
 #include "wiiuse.h"
 #include "inputcalibration.h"
 
@@ -53,7 +53,9 @@ private:
     int calibrationPointWidth, calibrationPointHeight;    
     Window root_window;
     Display * dpy;
-    QPoint prevPoint;  
+    QPoint prevPoint;
+    BaseDrawingWidget *draw;
+
 
     void repositionItems();
     void setCalibrationPointTouchStatus(int touchedCount);

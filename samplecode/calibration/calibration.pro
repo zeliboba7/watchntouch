@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui svg
 
 CONFIG += qtestlib
 
@@ -9,12 +9,18 @@ TEMPLATE = app
 SOURCES += main.cpp\
         calibrationwindow.cpp \
     irthread.cpp \
-    inputcalibration.cpp
+    inputcalibration.cpp \
+    drawingdata.cpp \
+    drawingaction.cpp \
+    basedrawingwidget.cpp
 
 HEADERS  += calibrationwindow.h \
     irthread.h \
-    inputcalibration.h
+    inputcalibration.h \
+    drawingdata.h \
+    drawingaction.h \
+    basedrawingwidget.h
 
 FORMS    += calibrationwindow.ui
 
-LIBS += -lwiiuse -Wall -pipe -fPIC -funroll-loops
+LIBS += -lwiiuse -lX11 -lXtst -lXext -Wall -pipe -fPIC -funroll-loops

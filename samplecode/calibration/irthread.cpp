@@ -74,6 +74,7 @@ IRThread::IRThread()
 
     wiiuse_rumble(wiimotes[0], 0);
     wiiuse_set_ir(wiimotes[0], 1);
+    // enable motion sensing to get the IR point nonvisible transition events
     wiiuse_motion_sensing(wiimotes[0], 1);
 
     //wiiuse_set_ir_sensitivity(wiimotes[0], 2);
@@ -130,7 +131,7 @@ void IRThread::run()
                             previousPoint = QPoint(wiimotes[0]->ir.dot[i].x,wiimotes[0]->ir.dot[i].y);
                         }
                         else if(previous[0] == false) {
-                            //qWarning() << "Hep buraya mı giriyor acaba?";
+                            // do nothing
                         }
                     }
                 }

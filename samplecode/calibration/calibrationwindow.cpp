@@ -7,12 +7,16 @@
 #include "ui_calibrationwindow.h"
 #include "calibrationwindow.h"
 
+#include <X11/extensions/XTest.h>
+
 CalibrationWindow::CalibrationWindow(QWidget *parent) :
     QMainWindow(parent, Qt::FramelessWindowHint),
     ui(new Ui::CalibrationWindow)
 {
     // UI
     ui->setupUi(this);
+
+    draw = NULL;
 
     // set calibration point width and height to default
     calibrationPointWidth = calibrationPointHeight = 100;
@@ -63,6 +67,7 @@ CalibrationWindow::CalibrationWindow(QWidget *parent) :
 
 CalibrationWindow::~CalibrationWindow()
 {
+    XCloseDisplay(dpy);
     delete ui;
 }
 
@@ -138,120 +143,28 @@ void CalibrationWindow::setCalibrationPointTouchStatus(int touchedCount)
 
 void CalibrationWindow::mousePress(int button,QPoint p) {
 
-    qWarning() << "Pressed!";
+    qWarning() << "Pressed!" << p;
 
-    QCursor::setPos(p);
-
-    XEvent event;
-
-    if(dpy == NULL)
-    {
-        fprintf(stderr, "Errore nell'apertura del Display !!!\n");
-        exit(EXIT_FAILURE);
-    }
-
-    memset(&event, 0x00, sizeof(event));
-
-    event.type = ButtonPress;
-    event.xbutton.state = 0x0;
-    event.xbutton.button = button;
-    event.xbutton.same_screen = True;
-    event.xbutton.x_root = p.x();       // x_root ve x diye ayrı ayrı parametreleri var
-    event.xbutton.y_root = p.y();
-
-    XQueryPointer(dpy, RootWindow(dpy, DefaultScreen(dpy)), &event.xbutton.root, &event.xbutton.window, &event.xbutton.x_root, &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y, &event.xbutton.state);
-
-    event.xbutton.subwindow = event.xbutton.window;
-
-    while(event.xbutton.subwindow)
-    {
-        event.xbutton.window = event.xbutton.subwindow;
-
-        XQueryPointer(dpy, event.xbutton.window, &event.xbutton.root, &event.xbutton.subwindow, &event.xbutton.x_root, &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y, &event.xbutton.state);
-    }
-
-    if(XSendEvent(dpy, PointerWindow, True, 0xfff, &event) == 0) fprintf(stderr, "Errore nell'invio dell'evento !!!\n");
-
-    XFlush(dpy);
-
+    XTestFakeMotionEvent (dpy, 0, p.x(), p.y(), CurrentTime);
+    XTestFakeButtonEvent (dpy, 2, True,  CurrentTime);
+    XSync(dpy, 0);
 }
 
 void CalibrationWindow::mouseRelease(int button,QPoint p) {
 
-    qWarning() << "Released!";
+    qWarning() << "Released!" << p;
 
-    QCursor::setPos(p);
-
-    XEvent event;
-
-    if(dpy == NULL)
-    {
-        fprintf(stderr, "Errore nell'apertura del Display !!!\n");
-        exit(EXIT_FAILURE);
-    }
-
-    memset(&event, 0x00, sizeof(event));
-
-    event.type = ButtonRelease;
-    event.xbutton.state = 0x100;
-    event.xbutton.button = button;
-    event.xbutton.same_screen = True;
-    event.xbutton.x_root = p.x();       // x_root ve x diye ayrı ayrı parametreleri var
-    event.xbutton.y_root = p.y();
-
-    XQueryPointer(dpy, RootWindow(dpy, DefaultScreen(dpy)), &event.xbutton.root, &event.xbutton.window, &event.xbutton.x_root, &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y, &event.xbutton.state);
-
-    event.xbutton.subwindow = event.xbutton.window;
-
-    while(event.xbutton.subwindow)
-    {
-        event.xbutton.window = event.xbutton.subwindow;
-        XQueryPointer(dpy, event.xbutton.window, &event.xbutton.root, &event.xbutton.subwindow, &event.xbutton.x_root, &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y, &event.xbutton.state);
-    }
-
-    if(XSendEvent(dpy, PointerWindow, True, 0xfff, &event) == 0) fprintf(stderr, "Errore nell'invio dell'evento !!!\n");
-
-    XFlush(dpy);
+    XTestFakeMotionEvent (dpy, 0, p.x(), p.y(), CurrentTime);
+    XTestFakeButtonEvent (dpy, 2, False,  CurrentTime);
+    XSync(dpy,0);
 }
 
 void CalibrationWindow::mouseMove(int button, QPoint p)
 {
-    qWarning() << "Move!";
+    qWarning() << "Move!" << p;
 
-    QCursor::setPos(p);
-
-    XEvent event;
-
-    if(dpy == NULL)
-    {
-        fprintf(stderr, "Errore nell'apertura del Display !!!\n");
-        exit(EXIT_FAILURE);
-    }
-
-    memset(&event, 0x00, sizeof(event));
-
-    event.type = MotionNotify;
-    //event.xmotion.x_root = p.x();
-    //event.xmotion.y_root = p.y();
-    event.xbutton.state = 0x100;
-    event.xbutton.button = button;
-    event.xbutton.same_screen = True;
-    event.xbutton.x = p.x();       // x_root ve x diye ayrı ayrı parametreleri var
-    event.xbutton.y = p.y();
-
-    XQueryPointer(dpy, RootWindow(dpy, DefaultScreen(dpy)), &event.xbutton.root, &event.xbutton.window, &event.xbutton.x_root, &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y, &event.xbutton.state);
-
-    event.xbutton.subwindow = event.xbutton.window;
-
-    while(event.xbutton.subwindow)
-    {
-        event.xbutton.window = event.xbutton.subwindow;
-        XQueryPointer(dpy, event.xbutton.window, &event.xbutton.root, &event.xbutton.subwindow, &event.xbutton.x_root, &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y, &event.xbutton.state);
-    }
-
-    if(XSendEvent(dpy, PointerWindow, True, 0xfff, &event) == 0) fprintf(stderr, "Errore nell'invio dell'evento !!!\n");
-
-    XFlush(dpy);
+    XTestFakeMotionEvent (dpy, 0, p.x(), p.y(), CurrentTime);
+    XSync(dpy, 0);
 }
 
 
@@ -264,14 +177,24 @@ void CalibrationWindow::inputReceived(int x, int y, int i,int type)
         mapper.addCalibrationSample(QPoint(x,y));
     }
     else if(mapper.calibrated()) {
+        if(!draw) {
+            qWarning() << "leleloooy looy loy";
+            draw = new BaseDrawingWidget(this);
+            draw->setGeometry(QRect(0,0, width(), height()));
+            draw->raise();
+            draw->show();
+        }
         // TODO the events must be generated by EventGenerator
         QPoint newPoint = mapper.mapFromWiimoteToScreen(QPoint(x,y));
+        if(newPoint.x() < 0) newPoint.setX(0);
+        if(newPoint.y() < 0) newPoint.setY(0);
+
         if(type == 0) {
             if(i==0) {
                 mousePress(Button1,newPoint);
             }
             if(i==1)
-                ;//ui->multitouchTestLabel2->move(x,y);
+                            ;//ui->multitouchTestLabel2->move(x,y);
         }
         else if(type == 1) {
             if(i==0) {
