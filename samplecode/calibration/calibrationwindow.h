@@ -69,9 +69,10 @@ protected:
     bool event(QEvent *event);    
 
 public slots:
-    void inputReceived(int x,int y,int i,int type);
+    void inputReceived(int x,int y,int i,int type,int visibleCount);
     void calibrationPointReceived(QPoint p);
     void connected();
+    void calibrationComplete();
 
 };
 

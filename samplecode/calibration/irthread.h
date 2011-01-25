@@ -14,6 +14,7 @@
 #define HEIGHT_FIX  20  // TODO set this according to platform
 #define MAX_WIIMOTES    1
 
+// TODO move these to appglobals
 #define MOUSE_PRESSED 0
 #define MOUSE_MOVE 1
 #define MOUSE_RELEASED 2
@@ -31,7 +32,7 @@ public:
     void run(); // From QThread
 
 signals:
-    void IRInputReceived(int x,int y,int i,int type);
+    void IRInputReceived(int x,int y,int i,int type,int count);
     void connected();
 
 private:

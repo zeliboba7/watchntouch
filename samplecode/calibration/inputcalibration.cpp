@@ -5,6 +5,8 @@
 
 #include "inputcalibration.h"
 
+// TODO add Utku's smoothing code
+
 // class constructor
 // - get screen width/height and store them
 InputCalibration::InputCalibration()
@@ -90,7 +92,7 @@ void InputCalibration::addCalibrationSample(QPoint newPoint)
         calibratedWidth =  (sqrt((calibrationPoints[0].x() - calibrationPoints[3].x())*(calibrationPoints[0].x() - calibrationPoints[3].x()) + (calibrationPoints[0].y() - calibrationPoints[3].y())*(calibrationPoints[0].y() - calibrationPoints[3].y()))
                             + sqrt((calibrationPoints[1].x() - calibrationPoints[2].x())*(calibrationPoints[1].x() - calibrationPoints[2].x()) + (calibrationPoints[1].y() - calibrationPoints[2].y())*(calibrationPoints[1].y() - calibrationPoints[2].y()))) / 2 ;
 
-        //emit calibrated();
+        emit calibrationComplete();
 
         isCalibrated = true;
         pointCounter = 0;

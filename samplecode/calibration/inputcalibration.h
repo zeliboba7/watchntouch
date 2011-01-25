@@ -50,6 +50,7 @@ private:
 
 signals:
     void calibrationPointReceived(QPoint p);
+    void calibrationComplete();
 
 };
 

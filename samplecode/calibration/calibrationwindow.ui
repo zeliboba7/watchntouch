@@ -210,7 +210,7 @@
      <string/>
     </property>
    </widget>
-   <widget class="QLabel" name="connectionInstructions">
+   <widget class="QLabel" name="instructions">
     <property name="geometry">
      <rect>
       <x>210</x>
@@ -221,6 +221,9 @@
     </property>
     <property name="text">
      <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
   </widget>

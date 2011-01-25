@@ -10,7 +10,8 @@
 
 IRThread::IRThread()
 {
-
+    isConnected = 0;
+    found = 0;
 }
 
 
@@ -103,7 +104,8 @@ void IRThread::initialize()
 
 void IRThread::run()
 {
-    //while(!isConnected) TODO uncommenting caused crash - why?
+    int visiblePointCount = 0;
+    while(!isConnected)
         initialize();
 
     int poll_res = 0;
@@ -115,30 +117,31 @@ void IRThread::run()
             if(wiimotes[0]->event == WIIUSE_EVENT) {
                 //qWarning() << "1";
                 if (WIIUSE_USING_IR(wiimotes[0])) {
-                    int i = 0;                    
-                    /* go through each of the 4 possible IR sources */
-                    for (; i < 1; ++i) {
-                        /* check if the source is visible */
-                        // qWarning() << "AAAAA : " << wiimotes[0]->ir.dot[i].visible << previous[i];
-                        if (wiimotes[0]->ir.dot[i].visible) {
-                            if(previous[0] == false) {
-                                previous[0] = true;
-                                emit IRInputReceived(wiimotes[0]->ir.dot[i].x, wiimotes[0]->ir.dot[i].y,i,MOUSE_PRESSED);
-                                previousPoint = QPoint(wiimotes[0]->ir.dot[i].x,wiimotes[0]->ir.dot[i].y);
-                            }
-                            else if(previous[0] == true) {
-                                emit IRInputReceived(wiimotes[0]->ir.dot[i].x, wiimotes[0]->ir.dot[i].y,i,MOUSE_MOVE);
-                                previousPoint = QPoint(wiimotes[0]->ir.dot[i].x,wiimotes[0]->ir.dot[i].y);
-                            }
+                    int i = 0;
+                    //count number of visible points
+                    visiblePointCount = 0;
+                    for(int i = 0; i < 4; i++)
+                        if(wiimotes[0]->ir.dot[i].visible)
+                            visiblePointCount++;
+                    // process ir dot #0
+                    if (wiimotes[0]->ir.dot[0].visible) {
+                        if(previous[0] == false) {
+                            previous[0] = true;
+                            emit IRInputReceived(wiimotes[0]->ir.dot[0].x, wiimotes[0]->ir.dot[0].y,0,MOUSE_PRESSED,visiblePointCount);
+                            previousPoint = QPoint(wiimotes[0]->ir.dot[0].x,wiimotes[0]->ir.dot[0].y);
                         }
                         else if(previous[0] == true) {
-                            previous[0] = false;
-                            emit IRInputReceived(wiimotes[0]->ir.dot[i].x, wiimotes[0]->ir.dot[i].y,i,MOUSE_RELEASED);
-                            previousPoint = QPoint(wiimotes[0]->ir.dot[i].x,wiimotes[0]->ir.dot[i].y);
+                            emit IRInputReceived(wiimotes[0]->ir.dot[0].x, wiimotes[0]->ir.dot[0].y,0,MOUSE_MOVE,visiblePointCount);
+                            previousPoint = QPoint(wiimotes[0]->ir.dot[0].x,wiimotes[0]->ir.dot[0].y);
                         }
-                        else if(previous[0] == false) {
-                            // do nothing
-                        }
+                    }
+                    else if(previous[0] == true) {
+                        previous[0] = false;
+                        emit IRInputReceived(wiimotes[0]->ir.dot[0].x, wiimotes[0]->ir.dot[0].y,0,MOUSE_RELEASED,visiblePointCount);
+                        previousPoint = QPoint(wiimotes[0]->ir.dot[0].x,wiimotes[0]->ir.dot[0].y);
+                    }
+                    else if(previous[0] == false) {
+                        // do nothing
                     }
                 }
             }
