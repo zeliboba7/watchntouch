@@ -64,6 +64,7 @@
    <addaction name="actionRedPen"/>
    <addaction name="actionBlackPen"/>
    <addaction name="actionBluePen"/>
+   <addaction name="actionEraser"/>
    <addaction name="actionPenWidthInc"/>
    <addaction name="actionPenWidthDec"/>
    <addaction name="actionListen"/>
@@ -164,6 +165,11 @@
   <action name="actionConnect">
    <property name="text">
     <string>Connect</string>
+   </property>
+  </action>
+  <action name="actionEraser">
+   <property name="text">
+    <string>Eraser</string>
    </property>
   </action>
  </widget>

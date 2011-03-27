@@ -16,6 +16,11 @@ void CollaborativeDrawingWidget::commitDrawing(QPicture drawingPictureData)
 
     BaseDrawingWidget::commitDrawing(drawingPictureData);
     QByteArray picdata(drawingPictureData.data(), drawingPictureData.size());
+    int dsize = drawingPictureData.size();
+    QByteArray datalen = QByteArray::fromRawData((const char*)&dsize, 4);;
+
+    qWarning() << "written header # " << clientSocket.write(QString("DRAW").toAscii());
+    qWarning() << "written length # " << clientSocket.write(datalen) << datalen;
     qWarning() << "written bytes #" << clientSocket.write(picdata);
 }
 
@@ -37,10 +42,32 @@ void CollaborativeDrawingWidget::gotNewConnection()
 
 void CollaborativeDrawingWidget::dataArrived()
 {
+    static int sizeOfPackage = -1;
+    static QByteArray receivedData;
+
     qWarning() << "new data arrived to server!";
     QByteArray newdata = serverSocket->readAll();
     qWarning() << "size of arrived data" << newdata.size();
-    QPicture pic;
-    pic.setData(newdata.constData(), newdata.size());
-    BaseDrawingWidget::commitDrawing(pic);
+
+    if(newdata.startsWith(QString("DRAW").toAscii())) {
+        qWarning() << "raw data" << newdata.right(newdata.length() - 4).left(4).toHex();
+        memcpy(&sizeOfPackage, newdata.right(newdata.length() - 4).left(4).constData(), 4);
+        qWarning() << "got sizeofpackage " << sizeOfPackage;
+        receivedData = newdata.right(newdata.length() - 8);
+    } else {
+        receivedData.append(newdata);
+    }
+
+    qWarning() << "sizeofpackage " << sizeOfPackage << "total recv data size" << receivedData.size();
+
+    if(sizeOfPackage == receivedData.size()) {
+        // done receiving data for this drawing step
+        QPicture pic;
+        pic.setData(receivedData.constData(), receivedData.size());
+        BaseDrawingWidget::commitDrawing(pic);
+        sizeOfPackage = -1;
+        receivedData = QByteArray();
+    }
+
+
 }

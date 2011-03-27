@@ -121,3 +121,8 @@ void MainWindow::on_actionConnect_triggered()
         qWarning() << "Connection succeeded, you may start drawing!";
     }
 }
+
+void MainWindow::on_actionEraser_triggered()
+{
+    ui->graphicsView->setDrawingMode(DRAWINGMODE_ERASER);
+}

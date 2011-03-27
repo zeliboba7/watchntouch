@@ -33,6 +33,7 @@ private slots:
     void on_actionBluePen_triggered();
     void on_actionBlackPen_triggered();
     void on_actionRedPen_triggered();
+    void on_actionEraser_triggered();
 };
 
 #endif // MAINWINDOW_H
